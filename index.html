@@ -1,167 +1,168 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Koorlap Event Workspace + File OCR & Notes</title>
-  <!-- Tailwind CSS -->
+  <title>Koorlap Personal Workspace App</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Tesseract.js for Image OCR Processing -->
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
       background-color: #090d16;
       color: #f8fafc;
+      -webkit-tap-highlight-color: transparent;
     }
     .custom-scrollbar::-webkit-scrollbar {
-      width: 6px;
+      width: 5px;
     }
     .custom-scrollbar::-webkit-scrollbar-track {
       background: #0f172a;
     }
     .custom-scrollbar::-webkit-scrollbar-thumb {
       background: #334155;
-      border-radius: 3px;
+      border-radius: 4px;
+    }
+    /* Smooth transitions for accordion collapse */
+    .accordion-content {
+      transition: max-height 0.25s ease-in-out, opacity 0.2s ease-in-out;
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col custom-scrollbar">
+<body class="min-h-screen flex flex-col custom-scrollbar selection:bg-indigo-500 selection:text-white">
 
+  <!-- MAIN APP CONTAINER -->
   <div id="app" class="max-w-md mx-auto w-full min-h-screen bg-slate-950 border-x border-slate-800/80 flex flex-col shadow-2xl relative">
     
-    <!-- TOP HEADER -->
-    <header class="bg-slate-950/90 backdrop-blur border-b border-slate-800/80 p-4 sticky top-0 z-40 flex items-center justify-between">
+    <!-- APP HEADER -->
+    <header class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800/80 p-3.5 sticky top-0 z-40 flex items-center justify-between">
       <div class="flex items-center space-x-3">
-        <button id="btn-back" class="hidden text-slate-400 hover:text-white p-1 rounded-lg transition-colors">
-          <i class="fa-solid fa-arrow-left text-lg"></i>
+        <button id="btn-back" class="hidden text-slate-400 hover:text-white p-1.5 rounded-lg transition-colors">
+          <i class="fa-solid fa-arrow-left text-base"></i>
         </button>
         <div>
-          <h1 id="header-title" class="font-bold text-base text-slate-100 flex items-center gap-2">
+          <h1 id="header-title" class="font-bold text-sm text-slate-100 flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>
             Koorlap Workspace
           </h1>
-          <p id="header-subtitle" class="text-xs text-slate-400">Personal Event Manager & Rundown Notes</p>
+          <div class="flex items-center gap-2 mt-0.5">
+            <p id="header-subtitle" class="text-[11px] text-slate-400">Personal Event Manager</p>
+            <span id="realtime-clock" class="text-[10px] font-mono bg-indigo-950/80 text-indigo-300 border border-indigo-800/50 px-2 py-0.5 rounded-md font-semibold">00:00:00</span>
+          </div>
         </div>
       </div>
-      <div class="flex items-center gap-2">
-        <button id="btn-toggle-notif" class="px-2.5 py-1 rounded-full bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-indigo-400 text-[11px] font-semibold border border-slate-800 flex items-center gap-1.5 transition-colors" title="Izinkan Notifikasi Sistem & HP">
-          <i id="icon-notif" class="fa-solid fa-bell-slash text-xs"></i>
-          <span id="txt-notif" class="hidden sm:inline">Notif Off</span>
-        </button>
-        <div class="px-2.5 py-1 rounded-full bg-indigo-950 text-indigo-400 text-[11px] font-semibold border border-indigo-800/50">
-          Personal
-        </div>
-      </div>
+      
+      <!-- Notification Toggle Button -->
+      <button id="btn-toggle-notif" class="p-2 rounded-xl bg-slate-800 text-slate-400 hover:text-amber-400 border border-slate-700/60 transition-all text-xs flex items-center gap-1.5" title="Aktifkan Notifikasi & Suara Alarm HP">
+        <i id="notif-icon" class="fa-solid fa-bell-slash"></i>
+      </button>
     </header>
 
-    <main class="flex-1 p-4 overflow-y-auto space-y-5 custom-scrollbar pb-12">
+    <!-- CONTENT AREA -->
+    <main class="flex-1 p-4 overflow-y-auto space-y-5 custom-scrollbar pb-16">
       
-      <!-- SCREEN 1: HOMESCREEN (EVENT LIST) -->
-      <section id="screen-home" class="space-y-5">
+      <!-- SCREEN 1: HOMESCREEN -->
+      <section id="screen-home" class="space-y-4">
         <!-- Dashboard Hero Banner -->
-        <div class="bg-gradient-to-br from-indigo-950 via-slate-900 to-slate-950 border border-indigo-500/20 rounded-2xl p-4 text-slate-200">
+        <div class="bg-gradient-to-br from-indigo-900/50 via-slate-900 to-slate-950 border border-indigo-500/30 rounded-2xl p-4 text-slate-200">
           <div class="flex items-start justify-between">
             <div>
-              <span class="text-[10px] font-bold tracking-wider uppercase bg-indigo-500/20 text-indigo-300 px-2.5 py-0.5 rounded-full border border-indigo-500/30">Personal Koorlap Desk</span>
-              <h2 class="text-xl font-extrabold text-white mt-2">Kelola Event & Rundown</h2>
-              <p class="text-xs text-slate-400 mt-1">Upload foto/file rundown, kelola catatan kegiatan, & jalankan live timer.</p>
+              <span class="text-[10px] font-bold tracking-wider uppercase bg-indigo-500/20 text-indigo-300 px-2.5 py-0.5 rounded-full border border-indigo-500/30">Koorlap Control Center</span>
+              <h2 class="text-lg font-extrabold text-white mt-1.5">Kelola Rundown & Operasional</h2>
+              <p class="text-xs text-slate-400 mt-1">Sistem sinkron real-time, pencatatan notes per kegiatan, dan penggeser waktu instan.</p>
             </div>
-            <div class="w-10 h-10 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 text-xl">
-              <i class="fa-solid fa-calendar-check"></i>
+            <div class="w-10 h-10 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 text-lg shrink-0">
+              <i class="fa-solid fa-clipboard-list"></i>
             </div>
           </div>
         </div>
 
-        <!-- Add Event Main Button -->
-        <button id="btn-open-add-event" class="w-full bg-indigo-600 hover:bg-indigo-500 active:scale-[0.99] text-white font-semibold py-3 px-4 rounded-xl shadow-lg shadow-indigo-600/20 flex items-center justify-center space-x-2 transition-all">
+        <!-- Add Event Trigger Button -->
+        <button id="btn-open-add-event" class="w-full bg-indigo-600 hover:bg-indigo-500 active:scale-[0.99] text-white font-semibold py-3 px-4 rounded-xl shadow-lg shadow-indigo-600/25 flex items-center justify-center space-x-2 transition-all text-xs">
           <i class="fa-solid fa-plus text-sm"></i>
           <span>+ Tambah Event Baru</span>
         </button>
 
-        <!-- Events List -->
-        <div class="space-y-3">
+        <!-- Events List Container -->
+        <div class="space-y-3 pt-1">
           <div class="flex items-center justify-between">
-            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Daftar Event Tersimpan</h3>
-            <span id="event-count-badge" class="text-xs bg-slate-900 text-slate-400 px-2 py-0.5 rounded font-mono">0 Event</span>
+            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Daftar Event Tersimpan</h3>
+            <span id="event-count-badge" class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-md font-mono">0 Event</span>
           </div>
 
           <div id="events-grid" class="space-y-3">
-            <!-- Event items generated via JS -->
+            <!-- Event cards generated dynamically via JS -->
           </div>
         </div>
       </section>
 
-      <!-- SCREEN 2: EVENT DETAIL & RUNDOWN WORKSPACE -->
-      <section id="screen-detail" class="hidden space-y-6">
+      <!-- SCREEN 2: EVENT DETAIL & OPERATIONAL WORKSPACE -->
+      <section id="screen-detail" class="hidden space-y-5">
         
-        <!-- Active Event Info Header -->
-        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 flex justify-between items-start">
-          <div>
+        <!-- Active Event Info Header Card -->
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 flex justify-between items-start shadow-md">
+          <div class="pr-2">
             <div id="detail-event-date" class="text-xs text-indigo-400 font-medium flex items-center gap-1.5 mb-1">
               <i class="fa-regular fa-calendar"></i> 28 September 2026
             </div>
             <h2 id="detail-event-name" class="text-xl font-bold text-white">SAWITCUP 2026</h2>
-            <p id="detail-event-meta" class="text-xs text-slate-400 mt-0.5">Lapangan Utama & Stage A</p>
+            <p id="detail-event-meta" class="text-xs text-slate-400 mt-0.5">Gelanggang Olahraga & Main Stage</p>
           </div>
-          <button id="btn-delete-event" class="text-slate-500 hover:text-rose-400 p-2 rounded-lg transition-colors text-xs flex items-center gap-1" title="Hapus Seluruh Event Ini">
-            <i class="fa-solid fa-trash"></i>
-          </button>
+          <div class="flex flex-col items-end gap-2 shrink-0">
+            <span id="event-date-status-badge" class="text-[10px] font-bold px-2.5 py-1 rounded-full border bg-slate-950 text-slate-400 border-slate-800">
+              Mengecek Tanggal...
+            </span>
+            <button id="btn-delete-event" class="text-slate-500 hover:text-rose-400 p-1.5 rounded-lg transition-colors text-xs flex items-center gap-1" title="Hapus Event Ini">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </div>
         </div>
 
-        <!-- SECTION 1: RUNDOWN UPLOADER (TEXT / FILE / IMAGE OCR) -->
-        <div class="bg-slate-900/60 border border-indigo-500/30 rounded-2xl p-4 space-y-3 relative overflow-hidden">
+        <!-- SECTION 1: AI RUNDOWN UPLOAD & CONVERTER -->
+        <div class="bg-slate-900/80 border border-indigo-500/30 rounded-2xl p-4 space-y-3 relative overflow-hidden">
           <div class="flex items-center justify-between border-b border-slate-800/80 pb-2.5">
             <div class="flex items-center space-x-2">
               <div class="w-7 h-7 rounded-lg bg-indigo-600/30 text-indigo-400 flex items-center justify-center text-xs">
-                <i class="fa-solid fa-file-arrow-up"></i>
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
               </div>
-              <h3 class="font-bold text-sm text-slate-100">Upload & Konversi Rundown</h3>
+              <h3 class="font-bold text-xs text-slate-100">AI Rundown Converter & File Reader</h3>
             </div>
-            <span class="text-[10px] bg-indigo-950 text-indigo-300 px-2 py-0.5 rounded border border-indigo-800/50">Smart Time Parser</span>
+            <span class="text-[10px] bg-indigo-950 text-indigo-300 px-2 py-0.5 rounded border border-indigo-800/50 font-semibold">Auto-Detect</span>
           </div>
 
-          <!-- Input Source Selector Tabs -->
-          <div class="grid grid-cols-3 gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
-            <button id="tab-input-file" class="py-1.5 rounded-lg bg-indigo-600 text-white font-medium transition-all text-[11px] flex items-center justify-center gap-1">
-              <i class="fa-solid fa-image text-[10px]"></i> Foto / File
+          <!-- Input Selector Tabs -->
+          <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
+            <button id="tab-input-text" class="w-1/2 py-1.5 rounded-lg bg-indigo-600 text-white font-medium transition-all">
+              <i class="fa-solid fa-align-left mr-1"></i> Teks / Paste
             </button>
-            <button id="tab-input-text" class="py-1.5 rounded-lg text-slate-400 hover:text-white font-medium transition-all text-[11px] flex items-center justify-center gap-1">
-              <i class="fa-solid fa-align-left text-[10px]"></i> Paste Teks
-            </button>
-            <button id="tab-input-sample" class="py-1.5 rounded-lg text-slate-400 hover:text-white font-medium transition-all text-[11px] flex items-center justify-center gap-1">
-              <i class="fa-solid fa-wand-magic-sparkles text-[10px]"></i> Contoh RD
+            <button id="tab-input-file" class="w-1/2 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 font-medium transition-all">
+              <i class="fa-solid fa-file-arrow-up mr-1"></i> Upload Foto / Doc
             </button>
           </div>
 
-          <!-- TAB CONTENT 1: FILE / IMAGE UPLOAD -->
-          <div id="content-input-file" class="space-y-2">
-            <label for="file-upload-input" class="border-2 border-dashed border-slate-800 hover:border-indigo-500/60 bg-slate-950/60 rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer transition-colors group">
-              <div class="w-10 h-10 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 group-hover:text-indigo-400 mb-2">
-                <i class="fa-solid fa-cloud-arrow-up text-base"></i>
-              </div>
-              <p class="text-xs text-slate-300 font-medium text-center">Klik atau Tarik File / Gambar Rundown</p>
-              <p class="text-[10px] text-slate-500 text-center mt-0.5">Mendukung Foto (JPG, PNG) atau Dokumen (TXT, CSV)</p>
-              <input id="file-upload-input" type="file" accept="image/*,.txt,.csv" class="hidden">
-            </label>
-            <div id="file-preview-name" class="hidden text-[11px] text-indigo-400 bg-indigo-950/50 p-2 rounded-lg border border-indigo-800/40 flex items-center justify-between">
-              <span class="truncate"><i class="fa-solid fa-paperclip mr-1"></i> <span id="file-name-txt">filename.png</span></span>
-              <span id="file-size-txt" class="text-slate-400 font-mono text-[10px]">0 KB</span>
+          <!-- Tab 1: Text Area Input -->
+          <div id="container-input-text" class="space-y-2">
+            <textarea id="raw-rundown-input" rows="4" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 font-mono transition-colors" placeholder="Contoh format:&#10;08:00 - 08:30 | Briefing Panitia & Sterilisasi | PJ: Kenzie | Pos: Gate Utama&#10;08:30 - 09:15 | Opening Ceremony | PJ: Misba | Pos: Main Stage&#10;09:15 - 11:30 | Pertandingan Penyisihan | PJ: Dimas | Pos: Lapangan A"></textarea>
+          </div>
+
+          <!-- Tab 2: Upload File/Foto Input -->
+          <div id="container-input-file" class="hidden space-y-2">
+            <div class="border-2 border-dashed border-slate-800 hover:border-indigo-500/50 rounded-xl p-4 text-center cursor-pointer bg-slate-950/50 transition-colors" onclick="document.getElementById('file-rundown-upload').click()">
+              <i class="fa-solid fa-cloud-arrow-up text-2xl text-indigo-400 mb-1"></i>
+              <p class="text-xs text-slate-300 font-medium">Klik untuk Pilih Foto / File Rundown</p>
+              <p class="text-[10px] text-slate-500 mt-0.5">Dukungan: JPG, PNG, PDF, TXT, CSV</p>
+              <input type="file" id="file-rundown-upload" accept="image/*,.pdf,.txt,.csv" class="hidden">
+            </div>
+            <div id="file-name-preview" class="hidden text-xs text-indigo-300 bg-indigo-950/40 p-2 rounded-lg border border-indigo-800/40 flex items-center justify-between">
+              <span id="selected-filename-text" class="truncate pr-2">file.png</span>
+              <i class="fa-solid fa-circle-check text-emerald-400"></i>
             </div>
           </div>
 
-          <!-- TAB CONTENT 2: PASTE TEXT -->
-          <div id="content-input-text" class="hidden space-y-2">
-            <textarea id="raw-rundown-input" rows="4" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 font-mono transition-colors" placeholder="Format bebas, format jam otomatis terdeteksi:&#10;08:00 - 08:30 | Briefing Panitia | PJ: Kenzie | Pos: Gate Utama&#10;8.30-9.30 Opening Ceremony PJ: Misba&#10;09.30 s/d 11.30 Pertandingan Futsal"></textarea>
-          </div>
-
-          <!-- Model Layout Selector -->
+          <!-- Layout Style Selector -->
           <div class="flex items-center justify-between pt-1">
-            <label class="text-[11px] text-slate-400 font-medium">Model Layout:</label>
+            <label class="text-[11px] text-slate-400 font-medium">Model Tampilan:</label>
             <select id="select-ai-style" class="bg-slate-950 border border-slate-800 rounded-lg text-[11px] text-slate-300 px-2.5 py-1 focus:outline-none focus:border-indigo-500">
               <option value="timeline">📍 Timeline Interactive</option>
               <option value="grid">🃏 Card Grid Layout</option>
@@ -169,46 +170,47 @@
             </select>
           </div>
 
-          <!-- Convert Action Button -->
+          <!-- Convert Submit Button -->
           <button id="btn-convert-rundown" class="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-medium py-2.5 px-4 rounded-xl text-xs flex items-center justify-center space-x-2 shadow-md shadow-indigo-600/20 transition-all">
             <i class="fa-solid fa-bolt"></i>
             <span>Konversi Menjadi Rundown Digital</span>
           </button>
 
-          <!-- OCR / Processing Overlay -->
-          <div id="ai-loading" class="hidden absolute inset-0 bg-slate-950/95 backdrop-blur-sm flex flex-col items-center justify-center space-y-2 z-20 p-4 text-center">
+          <!-- Loading Overlay -->
+          <div id="ai-loading" class="hidden absolute inset-0 bg-slate-950/90 backdrop-blur-sm flex flex-col items-center justify-center space-y-2 z-20">
             <div class="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-            <p id="loading-status-text" class="text-xs text-indigo-300 font-medium animate-pulse">Membaca Teks dari Gambar (OCR Engine)...</p>
-            <div class="w-full max-w-[180px] bg-slate-800 h-1.5 rounded-full overflow-hidden">
-              <div id="ocr-progress-bar" class="bg-indigo-500 h-full w-0 transition-all duration-300"></div>
-            </div>
+            <p class="text-xs text-indigo-300 font-medium animate-pulse">Mengurai Jadwal, Waktu, Pos & Notes...</p>
           </div>
         </div>
 
-        <!-- SECTION 2: INTERACTIVE RUNDOWN & NOTES COLUMN -->
+        <!-- SECTION 2: DIGITAL INTERACTIVE RUNDOWN -->
         <div class="space-y-3">
-          <div class="flex items-center justify-between gap-2">
-            <div class="flex items-center space-x-2">
-              <h3 class="font-bold text-sm text-slate-200">Rundown Digital & Notes</h3>
-              <span id="rundown-count" class="text-[10px] bg-slate-900 text-slate-400 px-1.5 py-0.5 rounded font-mono">0 item</span>
+          <div class="flex flex-col space-y-2 sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-2">
+                <h3 class="font-bold text-xs text-slate-200 uppercase tracking-wider">Rundown Digital Interaktif</h3>
+                <span id="rundown-count" class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded font-mono">0 item</span>
+              </div>
             </div>
-            <div class="flex items-center gap-1.5">
-              <button id="btn-toggle-all-collapse" class="text-[11px] bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-800 px-2 py-1 rounded-lg transition-colors flex items-center gap-1" title="Lipat atau Buka Semua Detail Kegiatan">
-                <i id="icon-toggle-all" class="fa-solid fa-compress text-[10px]"></i>
-                <span id="txt-toggle-all">Lipat</span>
+
+            <!-- Toolbar Controls -->
+            <div class="flex items-center gap-1.5 justify-between">
+              <button id="btn-toggle-collapse-all" class="text-[10px] bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 px-2 py-1 rounded-lg transition-all flex items-center gap-1">
+                <i class="fa-solid fa-compress text-[9px]"></i>
+                <span id="collapse-all-label">Lipat Semua</span>
               </button>
-              <input type="text" id="rundown-search" placeholder="Cari acara..." class="bg-slate-950 border border-slate-800 rounded-lg text-[11px] text-slate-300 px-2.5 py-1 w-24 focus:outline-none focus:border-indigo-500">
+
+              <button id="btn-add-item-manual" class="text-[10px] bg-indigo-950 hover:bg-indigo-900 border border-indigo-800/60 text-indigo-300 font-semibold px-2 py-1 rounded-lg transition-all flex items-center gap-1">
+                <i class="fa-solid fa-plus text-[9px]"></i>
+                <span>+ Kegiatan</span>
+              </button>
+
+              <input type="text" id="rundown-search" placeholder="Cari acara / PJ..." class="bg-slate-950 border border-slate-800 rounded-lg text-[11px] text-slate-300 px-2 py-1 w-28 focus:outline-none focus:border-indigo-500">
             </div>
           </div>
 
-          <!-- Quick Add Manual Activity Item Button -->
-          <button id="btn-add-manual-item" class="w-full bg-slate-900 hover:bg-slate-800/80 border border-dashed border-indigo-500/40 text-indigo-300 text-xs py-2 px-3 rounded-xl flex items-center justify-center gap-2 transition-all">
-            <i class="fa-solid fa-plus text-[10px]"></i>
-            <span>+ Tambah Sesi Kegiatan Manual</span>
-          </button>
-
-          <!-- Rundown Container -->
-          <div id="digital-rundown-container" class="space-y-3">
+          <!-- Dynamic Interactive Rundown List Render Container -->
+          <div id="digital-rundown-container" class="space-y-2.5">
             <!-- Dynamic items rendered via JS -->
           </div>
         </div>
@@ -217,70 +219,85 @@
         <div class="border-t border-slate-800/80 pt-5 space-y-3">
           <div class="flex items-center justify-between">
             <div class="flex items-center space-x-2">
-              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
-              <h3 class="font-bold text-sm text-slate-100 uppercase tracking-wider text-[11px]">Live Session Control</h3>
+              <span id="live-ping-dot" class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+              <h3 class="font-bold text-xs text-slate-100 uppercase tracking-wider">Live Session Control</h3>
             </div>
-            <span class="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800/50 px-2 py-0.5 rounded-full font-semibold">Active Timer</span>
+            
+            <!-- Real-time Sync vs Simulation Switcher -->
+            <div class="flex items-center bg-slate-950 p-0.5 rounded-lg border border-slate-800">
+              <button id="btn-mode-realtime" class="text-[10px] font-bold px-2 py-1 rounded-md bg-indigo-600 text-white transition-all flex items-center gap-1">
+                <i class="fa-solid fa-clock text-[9px]"></i>
+                <span>Real-Time HP</span>
+              </button>
+              <button id="btn-mode-sim" class="text-[10px] font-bold px-2 py-1 rounded-md text-slate-400 hover:text-slate-200 transition-all flex items-center gap-1">
+                <i class="fa-solid fa-gamepad text-[9px]"></i>
+                <span>Simulasi</span>
+              </button>
+            </div>
           </div>
 
           <!-- Active Live Session Card -->
           <div class="bg-slate-900/90 border border-emerald-500/30 rounded-2xl p-4 space-y-3 shadow-lg shadow-emerald-950/20">
             <div class="flex justify-between items-start">
               <div class="pr-2">
-                <span class="text-[10px] font-bold text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800/50 uppercase tracking-wider">Sedang Berlangsung</span>
+                <span id="live-status-badge" class="text-[10px] font-bold text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800/50 uppercase tracking-wider">Sedang Berlangsung</span>
                 <h4 id="live-title" class="font-bold text-base text-white mt-1.5">Opening Ceremony & Sambutan</h4>
                 <div class="flex items-center gap-3 text-xs text-slate-400 mt-1">
                   <span id="live-pos" class="flex items-center gap-1 text-slate-300"><i class="fa-solid fa-location-dot text-indigo-400"></i> Main Stage</span>
                   <span id="live-pic" class="flex items-center gap-1 text-slate-300"><i class="fa-solid fa-user text-indigo-400"></i> PJ: Kenzie</span>
                 </div>
               </div>
-              <div class="text-right whitespace-nowrap">
+              <div class="text-right whitespace-nowrap shrink-0">
                 <div id="live-timer-display" class="text-2xl font-mono font-extrabold text-emerald-400 tracking-tight">14:22</div>
-                <span class="text-[10px] text-slate-500 uppercase font-medium">Sisa Waktu</span>
+                <span id="live-timer-label" class="text-[10px] text-slate-500 uppercase font-medium block">Sisa Waktu Sesi</span>
               </div>
+            </div>
+
+            <!-- Notice banner for non-event days -->
+            <div id="date-mismatch-notice" class="hidden bg-indigo-950/40 border border-indigo-500/30 rounded-xl p-2.5 text-[11px] text-indigo-200 flex items-center gap-2">
+              <i class="fa-solid fa-circle-info text-indigo-400 text-sm"></i>
+              <span id="date-mismatch-text">Hari ini bukan tanggal event. Mode Simulasi diaktifkan.</span>
             </div>
 
             <!-- Active Notes Banner -->
             <div id="live-notes-box" class="bg-amber-950/30 border border-amber-500/30 rounded-xl p-2.5 text-xs text-amber-200/90 flex items-start gap-2">
               <i class="fa-solid fa-note-sticky text-amber-400 text-sm mt-0.5"></i>
               <div>
-                <span class="text-[10px] font-bold uppercase text-amber-400 block">Note Live Sesi Ini:</span>
-                <p id="live-notes-text" class="text-[11px] mt-0.5 italic">Belum ada catatan khusus untuk sesi ini.</p>
+                <span class="font-bold block text-[10px] text-amber-400 uppercase tracking-wider">Catatan Khusus Sesi Ini:</span>
+                <p id="live-notes-text" class="text-[11px] italic">Tidak ada catatan khusus untuk sesi ini.</p>
               </div>
             </div>
 
-            <!-- Next Session Display -->
-            <div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5 flex items-center justify-between text-xs">
+            <!-- Next Session Preview Bar -->
+            <div class="bg-slate-950 border border-slate-800/80 rounded-xl p-2.5 flex items-center justify-between text-xs">
               <div class="truncate mr-2">
                 <span class="text-slate-500 font-semibold text-[10px] block uppercase">Selanjutnya:</span>
                 <span id="next-title" class="text-slate-300 font-medium truncate block">Pertandingan Penyisihan Futsal</span>
               </div>
-              <span id="next-time" class="text-slate-400 font-mono text-[11px] whitespace-nowrap bg-slate-900 px-2 py-1 rounded">09:30</span>
+              <span id="next-time" class="text-slate-400 font-mono text-[11px] whitespace-nowrap bg-slate-900 px-2 py-1 rounded border border-slate-800">09:15</span>
             </div>
 
-            <!-- Time Shift Control Buttons -->
+            <!-- Quick Shift Control Buttons -->
             <div class="pt-1">
-              <p class="text-[10px] text-slate-400 mb-2 font-medium">Geser Seluruh Jadwal Rundown:</p>
-              <div class="grid grid-cols-4 gap-1.5">
-                <button id="btn-shift-minus5" class="bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-indigo-500/50 text-indigo-300 text-xs font-semibold py-2 rounded-xl transition-all flex items-center justify-center">
-                  <span>-5 Min</span>
+              <p class="text-[10px] text-slate-400 mb-2 font-medium">Geser Jadwal (+/- menit seluruh sesi):</p>
+              <div class="grid grid-cols-5 gap-1.5">
+                <button id="btn-shift-minus-5" class="bg-slate-950 hover:bg-slate-800 active:bg-rose-950 border border-slate-800 text-rose-300 text-xs font-semibold py-2 rounded-xl transition-all flex items-center justify-center">
+                  <span>-5M</span>
                 </button>
-                <button id="btn-shift-5" class="bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-indigo-500/50 text-indigo-300 text-xs font-semibold py-2 rounded-xl transition-all flex items-center justify-center">
-                  <span>+5 Min</span>
+                <button id="btn-shift-5" class="bg-slate-950 hover:bg-slate-800 active:bg-indigo-950 border border-slate-800 text-indigo-300 text-xs font-semibold py-2 rounded-xl transition-all flex items-center justify-center">
+                  <span>+5M</span>
                 </button>
-                <button id="btn-shift-10" class="bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-indigo-500/50 text-indigo-300 text-xs font-semibold py-2 rounded-xl transition-all flex items-center justify-center">
-                  <span>+10 Min</span>
+                <button id="btn-shift-10" class="bg-slate-950 hover:bg-slate-800 active:bg-indigo-950 border border-slate-800 text-indigo-300 text-xs font-semibold py-2 rounded-xl transition-all flex items-center justify-center">
+                  <span>+10M</span>
                 </button>
-                <button id="btn-pause-live" class="bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-amber-500/50 text-amber-300 text-xs font-semibold py-2 rounded-xl transition-all flex items-center justify-center">
+                <button id="btn-pause-live" class="bg-slate-950 hover:bg-slate-800 active:bg-amber-950 border border-slate-800 text-amber-300 text-xs font-semibold py-2 rounded-xl transition-all flex items-center justify-center">
                   <span id="pause-text">Pause</span>
+                </button>
+                <button id="btn-next-session" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold py-2 rounded-xl transition-all shadow-md shadow-indigo-600/20 flex items-center justify-center">
+                  <span>Next</span>
                 </button>
               </div>
             </div>
-            
-            <button id="btn-next-session" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-xl transition-all shadow-md shadow-indigo-600/20 text-xs flex items-center justify-center gap-2">
-              <i class="fa-solid fa-forward-step"></i>
-              <span>Lanjut Ke Sesi Berikutnya</span>
-            </button>
           </div>
         </div>
 
@@ -290,9 +307,12 @@
 
     <!-- MODAL: ADD EVENT -->
     <div id="modal-add-event" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-4">
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-sm p-5 space-y-4 shadow-2xl">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-sm p-5 space-y-4 shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-200">
         <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-          <h3 class="font-bold text-base text-white">Tambah Event Baru</h3>
+          <h3 class="font-bold text-sm text-white flex items-center gap-2">
+            <i class="fa-solid fa-calendar-plus text-indigo-400"></i>
+            Tambah Event Baru
+          </h3>
           <button id="btn-close-modal" class="text-slate-400 hover:text-white p-1">
             <i class="fa-solid fa-xmark"></i>
           </button>
@@ -301,7 +321,7 @@
         <form id="form-add-event" class="space-y-3">
           <div>
             <label class="block text-xs text-slate-300 font-medium mb-1">Nama Event / Acara</label>
-            <input type="text" id="input-event-name" required placeholder="misal: Concert Music Fest / Pensi SMAN 1" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500">
+            <input type="text" id="input-event-name" required placeholder="misal: SAWITCUP 2026 / Pensi Sekolah" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500">
           </div>
 
           <div>
@@ -310,8 +330,8 @@
           </div>
 
           <div>
-            <label class="block text-xs text-slate-300 font-medium mb-1">Lokasi / Venue</label>
-            <input type="text" id="input-event-meta" placeholder="misal: Main Hall / Lapangan Utama" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500">
+            <label class="block text-xs text-slate-300 font-medium mb-1">Lokasi / Keterangan Venue</label>
+            <input type="text" id="input-event-meta" placeholder="misal: Gelanggang Olahraga & Main Stage" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500">
           </div>
 
           <div class="pt-2 flex space-x-2">
@@ -327,26 +347,29 @@
     </div>
 
     <!-- TOAST NOTIFICATION -->
-    <div id="toast-notify" class="hidden fixed bottom-4 left-1/2 -translate-x-1/2 bg-slate-800 border border-indigo-500/40 text-slate-100 text-xs px-4 py-2.5 rounded-xl shadow-2xl z-50 flex items-center space-x-2">
-      <i class="fa-solid fa-circle-info text-indigo-400"></i>
-      <span id="toast-msg">Catatan disimpan</span>
+    <div id="toast-notify" class="hidden fixed bottom-4 left-1/2 -translate-x-1/2 bg-slate-800/95 border border-indigo-500/40 text-slate-100 text-xs px-4 py-2.5 rounded-xl shadow-2xl z-50 flex items-center space-x-2 whitespace-nowrap backdrop-blur-md">
+      <i id="toast-icon" class="fa-solid fa-circle-info text-indigo-400"></i>
+      <span id="toast-msg">Jadwal berhasil diperbarui</span>
     </div>
 
   </div>
 
   <script>
-    // DATA STATE PERSISTENCE
+    // HELPER: GET TODAY ISO DATE (YYYY-MM-DD)
+    const getTodayIsoDate = () => new Date().toISOString().split('T')[0];
+
+    // DEFAULT INITIAL EVENT DATA
     const defaultEvents = [
       {
         id: 'ev-1',
         name: 'SAWITCUP 2026',
-        date: '2026-05-15',
+        date: getTodayIsoDate(), // Default directly to current device date!
         meta: 'Gelanggang Olahraga & Main Stage',
         rundown: [
-          { time: '08:00 - 08:30', title: 'Briefing Panitia & Sterilisasi Lapangan', pic: 'Kenzie', pos: 'Gate Utama', status: 'done', tag: 'Persiapan', notes: 'Cek walkie talkie channel 2 & sound system.' },
-          { time: '08:30 - 09:15', title: 'Opening Ceremony & Sambutan', pic: 'Misba', pos: 'Main Stage', status: 'active', tag: 'Seremonial', notes: 'Sambutan Pak Lurah maksimal 10 menit. BGM siap.' },
-          { time: '09:15 - 11:30', title: 'Pertandingan Penyisihan Futsal', pic: 'Dimas', pos: 'Lapangan A', status: 'upcoming', tag: 'Olahraga', notes: 'Pastikan tim medis standby di pinggir lapangan.' },
-          { time: '11:30 - 13:00', title: 'ISOMA (Istirahat & Makan)', pic: 'Konsumsi', pos: 'Area VIP', status: 'upcoming', tag: 'Istirahat', notes: 'Kotak nasi panitia diambil di tenda konsumsi.' }
+          { time: '08:00 - 08:30', title: 'Briefing Panitia & Sterilisasi Lapangan', pic: 'Kenzie', pos: 'Gate Utama', status: 'done', tag: 'Persiapan', notes: 'Cek walkie talkie channel 2 & sound system.', collapsed: true },
+          { time: '08:30 - 09:15', title: 'Opening Ceremony & Sambutan', pic: 'Misba', pos: 'Main Stage', status: 'active', tag: 'Seremonial', notes: 'Sambutan Pak Lurah maksimal 10 menit. BGM siap.', collapsed: false },
+          { time: '09:15 - 11:30', title: 'Pertandingan Penyisihan Futsal', pic: 'Dimas', pos: 'Lapangan A', status: 'upcoming', tag: 'Olahraga', notes: 'Pastikan tim medis standby di pinggir lapangan.', collapsed: true },
+          { time: '11:30 - 13:00', title: 'ISOMA (Istirahat & Makan)', pic: 'Konsumsi', pos: 'Area VIP', status: 'upcoming', tag: 'Istirahat', notes: 'Kotak nasi panitia diambil di tenda konsumsi.', collapsed: true }
         ]
       }
     ];
@@ -354,11 +377,20 @@
     let events = JSON.parse(localStorage.getItem('koorlap_events')) || defaultEvents;
     let activeEventId = null;
     let timerInterval = null;
+    let realTimeClockInterval = null;
     let remainingSeconds = 14 * 60 + 22;
     let isPaused = false;
     let selectedFile = null;
+    let isRealTimeSync = true;
+    let isNotificationsEnabled = false;
+    let areAllCollapsed = false;
 
-    // DOM ELEMENTS
+    // DOM BINDINGS
+    const realtimeClock = document.getElementById('realtime-clock');
+    const btnToggleNotif = document.getElementById('btn-toggle-notif');
+    const notifIcon = document.getElementById('notif-icon');
+    const eventDateStatusBadge = document.getElementById('event-date-status-badge');
+    
     const screenHome = document.getElementById('screen-home');
     const screenDetail = document.getElementById('screen-detail');
     const btnBack = document.getElementById('btn-back');
@@ -366,183 +398,266 @@
     const headerSubtitle = document.getElementById('header-subtitle');
     const eventsGrid = document.getElementById('events-grid');
     const eventCountBadge = document.getElementById('event-count-badge');
+
+    // Modal Add Event
+    const modalAddEvent = document.getElementById('modal-add-event');
     const btnOpenAddEvent = document.getElementById('btn-open-add-event');
+    const btnCloseModal = document.getElementById('btn-close-modal');
+    const btnCancelModal = document.getElementById('btn-cancel-modal');
+    const formAddEvent = document.getElementById('form-add-event');
 
-    const btnToggleNotif = document.getElementById('btn-toggle-notif');
-    const iconNotif = document.getElementById('icon-notif');
-    const txtNotif = document.getElementById('txt-notif');
-
-    // Tab & File Upload
-    const tabInputFile = document.getElementById('tab-input-file');
-    const tabInputText = document.getElementById('tab-input-text');
-    const tabInputSample = document.getElementById('tab-input-sample');
-    const contentInputFile = document.getElementById('content-input-file');
-    const contentInputText = document.getElementById('content-input-text');
-    const fileUploadInput = document.getElementById('file-upload-input');
-    const filePreviewName = document.getElementById('file-preview-name');
-    const fileNameTxt = document.getElementById('file-name-txt');
-    const fileSizeTxt = document.getElementById('file-size-txt');
-
-    // Detail Screen Elements
+    // Detail Workspace Elements
     const detailEventName = document.getElementById('detail-event-name');
     const detailEventDate = document.getElementById('detail-event-date');
     const detailEventMeta = document.getElementById('detail-event-meta');
     const rawRundownInput = document.getElementById('raw-rundown-input');
     const btnConvertRundown = document.getElementById('btn-convert-rundown');
     const aiLoading = document.getElementById('ai-loading');
-    const loadingStatusText = document.getElementById('loading-status-text');
-    const ocrProgressBar = document.getElementById('ocr-progress-bar');
     const selectAiStyle = document.getElementById('select-ai-style');
     const digitalRundownContainer = document.getElementById('digital-rundown-container');
     const rundownCount = document.getElementById('rundown-count');
     const rundownSearch = document.getElementById('rundown-search');
     const btnDeleteEvent = document.getElementById('btn-delete-event');
-    const btnToggleAllCollapse = document.getElementById('btn-toggle-all-collapse');
-    const iconToggleAll = document.getElementById('icon-toggle-all');
-    const txtToggleAll = document.getElementById('txt-toggle-all');
-    const btnAddManualItem = document.getElementById('btn-add-manual-item');
+    const btnToggleCollapseAll = document.getElementById('btn-toggle-collapse-all');
+    const collapseAllLabel = document.getElementById('collapse-all-label');
+    const btnAddItemManual = document.getElementById('btn-add-item-manual');
 
-    // Live Session Control Elements
+    // File / Text Input Tabs
+    const tabInputText = document.getElementById('tab-input-text');
+    const tabInputFile = document.getElementById('tab-input-file');
+    const containerInputText = document.getElementById('container-input-text');
+    const containerInputFile = document.getElementById('container-input-file');
+    const fileRundownUpload = document.getElementById('file-rundown-upload');
+    const fileNamePreview = document.getElementById('file-name-preview');
+    const selectedFilenameText = document.getElementById('selected-filename-text');
+
+    // Live Controls
+    const btnModeRealtime = document.getElementById('btn-mode-realtime');
+    const btnModeSim = document.getElementById('btn-mode-sim');
+    const liveStatusBadge = document.getElementById('live-status-badge');
     const liveTitle = document.getElementById('live-title');
     const livePos = document.getElementById('live-pos');
     const livePic = document.getElementById('live-pic');
     const liveTimerDisplay = document.getElementById('live-timer-display');
+    const liveTimerLabel = document.getElementById('live-timer-label');
     const liveNotesBox = document.getElementById('live-notes-box');
     const liveNotesText = document.getElementById('live-notes-text');
+    const dateMismatchNotice = document.getElementById('date-mismatch-notice');
+    const dateMismatchText = document.getElementById('date-mismatch-text');
     const nextTitle = document.getElementById('next-title');
     const nextTime = document.getElementById('next-time');
-    const btnShiftMinus5 = document.getElementById('btn-shift-minus5');
+    const btnShiftMinus5 = document.getElementById('btn-shift-minus-5');
     const btnShift5 = document.getElementById('btn-shift-5');
     const btnShift10 = document.getElementById('btn-shift-10');
     const btnPauseLive = document.getElementById('btn-pause-live');
     const pauseText = document.getElementById('pause-text');
     const btnNextSession = document.getElementById('btn-next-session');
 
-    // Modal & Toast Elements
-    const modalAddEvent = document.getElementById('modal-add-event');
-    const btnCloseModal = document.getElementById('btn-close-modal');
-    const btnCancelModal = document.getElementById('btn-cancel-modal');
-    const formAddEvent = document.getElementById('form-add-event');
-    const toastNotify = document.getElementById('toast-notify');
-    const toastMsg = document.getElementById('toast-msg');
-
-    // HELPER: TIME PARSING & MANIPULATION
-    function addMinutesToTimeStr(timeStr, mins) {
+    // AUDIO SYNTH ALARM & SYSTEM NOTIFICATION SYSTEM
+    function playAlarmBeep() {
       try {
-        const parts = timeStr.trim().split(':');
-        if (parts.length < 2) return timeStr;
-        let h = parseInt(parts[0], 10);
-        let m = parseInt(parts[1], 10);
-        if (isNaN(h) || isNaN(m)) return timeStr;
-
-        let totalMins = h * 60 + m + mins;
-        totalMins = (totalMins + 1440) % 1440; // Wrap 24h
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        const ctx = new AudioContext();
         
-        const newH = Math.floor(totalMins / 60).toString().padStart(2, '0');
-        const newM = (totalMins % 60).toString().padStart(2, '0');
-        return `${newH}:${newM}`;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, ctx.currentTime); // Tone A5
+        osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.4);
+        
+        gain.gain.setValueAtTime(0.3, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+        
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        
+        osc.start();
+        osc.stop(ctx.currentTime + 0.4);
       } catch (e) {
-        return timeStr;
+        console.log('Audio Context restricted:', e);
       }
     }
 
-    function parseLineTimeAndTitle(line) {
-      let normLine = line.trim();
-      
-      // Convert dot time notation (08.00 -> 08:00)
-      normLine = normLine.replace(/(\d{1,2})[\.:](\d{2})/g, (m, h, min) => {
-        return `${h.padStart(2, '0')}:${min}`;
-      });
+    function triggerSystemNotification(title, body) {
+      playAlarmBeep();
+      if ('vibrate' in navigator) navigator.vibrate([200, 100, 200]);
 
-      // Flexible time range regex matching
-      const timeRangeRegex = /(\d{2}:\d{2})\s*(?:-|–|—|s\/d|s\.d\.|s\.d|sd|~|sampai)\s*(\d{2}:\d{2}|selesai)/i;
-      const singleTimeRegex = /^(\d{2}:\d{2})/i;
-
-      let timeStr = "";
-      let cleanLine = normLine;
-
-      const rangeMatch = normLine.match(timeRangeRegex);
-      if (rangeMatch) {
-        timeStr = `${rangeMatch[1]} - ${rangeMatch[2]}`;
-        cleanLine = normLine.replace(rangeMatch[0], "");
-      } else {
-        const singleMatch = normLine.match(singleTimeRegex);
-        if (singleMatch) {
-          timeStr = `${singleMatch[1]} - ${addMinutesToTimeStr(singleMatch[1], 30)}`;
-          cleanLine = normLine.replace(singleMatch[0], "");
-        }
+      if (isNotificationsEnabled && 'Notification' in window && Notification.permission === 'granted') {
+        new Notification(title, {
+          body: body,
+          icon: 'https://cdn-icons-png.flaticon.com/512/3239/3239952.png'
+        });
       }
+    }
 
-      // Extract PIC & POS if available
-      let title = cleanLine;
-      let pic = 'Kenzie';
-      let pos = 'Main Stage';
+    // TOGGLE NOTIFICATION PERMISSION
+    if (btnToggleNotif) {
+      btnToggleNotif.onclick = () => {
+        if (!('Notification' in window)) {
+          showToast('Browser Anda tidak mendukung push notifications.');
+          return;
+        }
 
-      if (/pj\s*:/i.test(title)) {
-        const parts = title.split(/pj\s*:/i);
-        title = parts[0];
-        const rest = parts[1];
-        if (/pos\s*:|lokasi\s*:/i.test(rest)) {
-          const sub = rest.split(/pos\s*:|lokasi\s*:/i);
-          pic = sub[0].replace(/\|/g, '').trim();
-          pos = sub[1].replace(/\|/g, '').trim();
+        if (Notification.permission === 'granted') {
+          isNotificationsEnabled = !isNotificationsEnabled;
+          updateNotifIcon();
+          showToast(isNotificationsEnabled ? '🔔 Notifikasi & Suara Diaktifkan!' : '🔕 Notifikasi Dimatikan.');
         } else {
-          pic = rest.replace(/\|/g, '').trim();
+          Notification.requestPermission().then(permission => {
+            if (permission === 'granted') {
+              isNotificationsEnabled = true;
+              updateNotifIcon();
+              showToast('🔔 Izin Notifikasi Diberikan!');
+            } else {
+              showToast('Izin notifikasi ditolak oleh sistem browser.');
+            }
+          });
         }
-      } else if (/pos\s*:|lokasi\s*:/i.test(title)) {
-        const parts = title.split(/pos\s*:|lokasi\s*:/i);
-        title = parts[0];
-        pos = parts[1].replace(/\|/g, '').trim();
-      }
-
-      // Clean leftover separators (| - :)
-      title = title.replace(/^[\s\|:\-–—]+|[\s\|:\-–—]+$/g, '').trim();
-      if (!title) title = 'Sesi Kegiatan';
-
-      return { timeStr, title, pic, pos };
+      };
     }
 
-    // TAB SWITCHING LOGIC
-    tabInputFile.onclick = () => {
-      tabInputFile.className = "py-1.5 rounded-lg bg-indigo-600 text-white font-medium transition-all text-[11px] flex items-center justify-center gap-1";
-      tabInputText.className = "py-1.5 rounded-lg text-slate-400 hover:text-white font-medium transition-all text-[11px] flex items-center justify-center gap-1";
-      tabInputSample.className = "py-1.5 rounded-lg text-slate-400 hover:text-white font-medium transition-all text-[11px] flex items-center justify-center gap-1";
-      contentInputFile.classList.remove('hidden');
-      contentInputText.classList.add('hidden');
-    };
-
-    tabInputText.onclick = () => {
-      tabInputText.className = "py-1.5 rounded-lg bg-indigo-600 text-white font-medium transition-all text-[11px] flex items-center justify-center gap-1";
-      tabInputFile.className = "py-1.5 rounded-lg text-slate-400 hover:text-white font-medium transition-all text-[11px] flex items-center justify-center gap-1";
-      tabInputSample.className = "py-1.5 rounded-lg text-slate-400 hover:text-white font-medium transition-all text-[11px] flex items-center justify-center gap-1";
-      contentInputText.classList.remove('hidden');
-      contentInputFile.classList.add('hidden');
-    };
-
-    tabInputSample.onclick = () => {
-      tabInputText.click();
-      rawRundownInput.value = `08:00 - 08:30 | Persiapan & Check-in Panitia | PJ: Sarah | Pos: Gate 1\n08:30 - 09:30 | Opening Ceremony & BGM | PJ: Kenzie | Pos: Stage Utama\n09:30 - 11:30 | Sesi Utama & Pentas Seni | PJ: Budi | Pos: Main Stage\n11:30 - 13:00 | ISOMA & Makan Siang | PJ: Konsumsi | Pos: Tenda VIP`;
-      showToast('Sample rundown dimasukkan ke kolom teks.');
-    };
-
-    // FILE INPUT SELECTION HANDLER
-    fileUploadInput.onchange = (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      selectedFile = file;
-      fileNameTxt.innerText = file.name;
-      fileSizeTxt.innerText = Math.round(file.size / 1024) + ' KB';
-      filePreviewName.classList.remove('hidden');
-
-      if (!file.type.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.onload = (evt) => {
-          rawRundownInput.value = evt.target.result;
-        };
-        reader.readAsText(file);
+    function updateNotifIcon() {
+      if (isNotificationsEnabled) {
+        notifIcon.className = "fa-solid fa-bell text-amber-400 animate-bounce";
+        btnToggleNotif.classList.add('border-amber-500/50', 'bg-amber-950/30');
+      } else {
+        notifIcon.className = "fa-solid fa-bell-slash text-slate-400";
+        btnToggleNotif.classList.remove('border-amber-500/50', 'bg-amber-950/30');
       }
-    };
+    }
+
+    // REAL-TIME CLOCK TICKER
+    function startRealTimeClock() {
+      clearInterval(realTimeClockInterval);
+      realTimeClockInterval = setInterval(() => {
+        const now = new Date();
+        if (realtimeClock) {
+          realtimeClock.innerText = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        }
+      }, 1000);
+    }
+    startRealTimeClock();
+
+    // TIME PARSER HELPER
+    function parseTimeRangeToSeconds(timeStr) {
+      if (!timeStr) return { startSecs: 0, endSecs: 0 };
+      const parts = timeStr.split(/-|–|—|s\/d|s\.d\.|sd|sampai/i);
+      if (parts.length < 1) return { startSecs: 0, endSecs: 0 };
+
+      const parseTimeToSecs = (str) => {
+        if (!str) return null;
+        const matches = str.trim().match(/(\d{1,2})[\.:](\d{2})/);
+        if (!matches) return null;
+        const h = parseInt(matches[1], 10);
+        const m = parseInt(matches[2], 10);
+        return h * 3600 + m * 60;
+      };
+
+      let startSecs = parseTimeToSecs(parts[0]) || 0;
+      let endSecs = parts.length > 1 ? parseTimeToSecs(parts[1]) : null;
+
+      if (endSecs === null) {
+        endSecs = startSecs + 30 * 60; // Default 30 min duration
+      }
+
+      if (endSecs < startSecs) {
+        endSecs += 24 * 3600;
+      }
+
+      return { startSecs, endSecs };
+    }
+
+    // REAL-TIME SYNCHRONIZATION ENGINE
+    function syncRundownWithRealTime() {
+      const ev = events.find(e => e.id === activeEventId);
+      if (!ev) return;
+
+      const now = new Date();
+      const todayStr = getTodayIsoDate();
+      const eventDateStr = ev.date;
+
+      const nowSecs = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+
+      if (eventDateStr === todayStr) {
+        if (eventDateStatusBadge) {
+          eventDateStatusBadge.className = "text-[10px] font-bold px-2.5 py-1 rounded-full border bg-emerald-950 text-emerald-400 border-emerald-800/50 flex items-center gap-1";
+          eventDateStatusBadge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Hari Ini (Live)`;
+        }
+        if (dateMismatchNotice) dateMismatchNotice.classList.add('hidden');
+
+        if (isRealTimeSync && ev.rundown.length > 0) {
+          let foundActive = false;
+
+          ev.rundown.forEach((item) => {
+            const { startSecs, endSecs } = parseTimeRangeToSeconds(item.time);
+
+            if (nowSecs < startSecs) {
+              item.status = 'upcoming';
+            } else if (nowSecs >= startSecs && nowSecs < endSecs) {
+              item.status = 'active';
+              remainingSeconds = endSecs - nowSecs;
+              foundActive = true;
+            } else {
+              item.status = 'done';
+            }
+          });
+
+          // Past all sessions
+          const lastItem = ev.rundown[ev.rundown.length - 1];
+          const lastSecs = parseTimeRangeToSeconds(lastItem.time).endSecs;
+          if (!foundActive && nowSecs >= lastSecs) {
+            ev.rundown.forEach(i => i.status = 'done');
+            remainingSeconds = 0;
+          } else if (!foundActive && nowSecs < parseTimeRangeToSeconds(ev.rundown[0].time).startSecs) {
+            ev.rundown.forEach(i => i.status = 'upcoming');
+            ev.rundown[0].status = 'active';
+            remainingSeconds = parseTimeRangeToSeconds(ev.rundown[0].time).startSecs - nowSecs;
+          }
+        }
+      } else if (eventDateStr > todayStr) {
+        if (eventDateStatusBadge) {
+          eventDateStatusBadge.className = "text-[10px] font-bold px-2.5 py-1 rounded-full border bg-indigo-950 text-indigo-300 border-indigo-800/50";
+          eventDateStatusBadge.innerText = "Event Mendatang";
+        }
+        if (dateMismatchNotice) {
+          dateMismatchNotice.classList.remove('hidden');
+          dateMismatchText.innerText = `Hari ini (${formatDate(todayStr)}) bukan tanggal event (${formatDate(eventDateStr)}). Menggunakan Mode Simulasi.`;
+        }
+      } else {
+        if (eventDateStatusBadge) {
+          eventDateStatusBadge.className = "text-[10px] font-bold px-2.5 py-1 rounded-full border bg-slate-900 text-slate-400 border-slate-800";
+          eventDateStatusBadge.innerText = "Event Telah Berlalu";
+        }
+        if (dateMismatchNotice) {
+          dateMismatchNotice.classList.remove('hidden');
+          dateMismatchText.innerText = `Event ini telah dilaksanakan pada ${formatDate(eventDateStr)}.`;
+        }
+      }
+    }
+
+    // MODE SWITCHER EVENT HANDLERS
+    if (btnModeRealtime && btnModeSim) {
+      btnModeRealtime.onclick = () => {
+        isRealTimeSync = true;
+        btnModeRealtime.className = "text-[10px] font-bold px-2 py-1 rounded-md bg-indigo-600 text-white transition-all flex items-center gap-1";
+        btnModeSim.className = "text-[10px] font-bold px-2 py-1 rounded-md text-slate-400 hover:text-slate-200 transition-all flex items-center gap-1";
+        if (liveTimerLabel) liveTimerLabel.innerText = "Sisa Waktu Sesi (Real-Time)";
+        syncRundownWithRealTime();
+        renderDigitalRundown();
+        updateLiveSessionUI();
+        showToast("⚡ Mode Real-Time HP Diaktifkan!");
+      };
+
+      btnModeSim.onclick = () => {
+        isRealTimeSync = false;
+        btnModeSim.className = "text-[10px] font-bold px-2 py-1 rounded-md bg-amber-600 text-white transition-all flex items-center gap-1";
+        btnModeRealtime.className = "text-[10px] font-bold px-2 py-1 rounded-md text-slate-400 hover:text-slate-200 transition-all flex items-center gap-1";
+        if (liveTimerLabel) liveTimerLabel.innerText = "Timer Simulasi Manual";
+        showToast("🎮 Mode Simulasi/Latihan Diaktifkan!");
+      };
+    }
 
     // RENDER HOMESCREEN
     function renderHomeScreen() {
@@ -550,14 +665,14 @@
       screenDetail.classList.add('hidden');
       btnBack.classList.add('hidden');
       headerTitle.innerHTML = `<span class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span> Koorlap Workspace`;
-      headerSubtitle.innerText = 'Personal Event Manager & Rundown Notes';
+      headerSubtitle.innerText = 'Personal Event Manager';
 
       eventsGrid.innerHTML = '';
       eventCountBadge.innerText = `${events.length} Event`;
 
       if (events.length === 0) {
         eventsGrid.innerHTML = `
-          <div class="text-center py-8 text-slate-500 bg-slate-900/40 rounded-2xl border border-slate-800">
+          <div class="text-center py-8 text-slate-500 bg-slate-900/60 rounded-2xl border border-slate-800">
             <i class="fa-regular fa-calendar-xmark text-2xl mb-2"></i>
             <p class="text-xs">Belum ada event. Klik "+ Tambah Event Baru".</p>
           </div>
@@ -565,15 +680,23 @@
         return;
       }
 
+      const todayStr = getTodayIsoDate();
+
       events.forEach(ev => {
         const card = document.createElement('div');
-        card.className = 'bg-slate-900/90 border border-slate-800 hover:border-indigo-500/40 rounded-2xl p-4 transition-all cursor-pointer flex justify-between items-center group';
+        
+        let dateTag = `<span class="text-indigo-400"><i class="fa-regular fa-calendar"></i> ${formatDate(ev.date)}</span>`;
+        if (ev.date === todayStr) {
+          dateTag = `<span class="text-emerald-400 font-bold flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Hari Ini (Live)</span>`;
+        }
+
+        card.className = 'bg-slate-900/90 border border-slate-800 hover:border-indigo-500/40 rounded-2xl p-4 transition-all cursor-pointer flex justify-between items-center group shadow-md';
         card.onclick = () => openEventDetail(ev.id);
 
         card.innerHTML = `
           <div class="space-y-1">
-            <div class="text-[11px] text-indigo-400 font-medium flex items-center gap-1.5">
-              <i class="fa-regular fa-calendar"></i> ${formatDate(ev.date)}
+            <div class="text-[11px] font-medium flex items-center gap-1.5">
+              ${dateTag}
             </div>
             <h4 class="font-bold text-sm text-slate-100 group-hover:text-indigo-300 transition-colors">${ev.name}</h4>
             <p class="text-xs text-slate-400">${ev.meta || 'Lokasi belum diisi'} • <span class="text-slate-300 font-mono">${ev.rundown.length} sesi</span></p>
@@ -605,14 +728,17 @@
 
       if (ev.rundown.length > 0) {
         rawRundownInput.value = ev.rundown.map(r => `${r.time} | ${r.title} | PJ: ${r.pic} | Pos: ${r.pos}`).join('\n');
+      } else {
+        rawRundownInput.value = '';
       }
 
+      syncRundownWithRealTime();
       renderDigitalRundown();
       updateLiveSessionUI();
       startTimer();
     }
 
-    // RENDER DIGITAL RUNDOWN + FULL EDIT & DELETE CAPABILITIES
+    // RENDER DIGITAL INTERACTIVE RUNDOWN
     function renderDigitalRundown() {
       const ev = events.find(e => e.id === activeEventId);
       if (!ev) return;
@@ -625,7 +751,6 @@
         item.title.toLowerCase().includes(searchTerm) || 
         item.pic.toLowerCase().includes(searchTerm) ||
         item.pos.toLowerCase().includes(searchTerm) ||
-        item.time.toLowerCase().includes(searchTerm) ||
         (item.notes && item.notes.toLowerCase().includes(searchTerm))
       );
 
@@ -633,193 +758,181 @@
 
       if (filteredRundown.length === 0) {
         digitalRundownContainer.innerHTML = `
-          <div class="text-center py-6 text-slate-500 bg-slate-900/60 rounded-xl border border-slate-800 text-xs">
-            Belum ada kegiatan dalam rundown. Klik "+ Tambah Sesi Kegiatan Manual" di atas.
+          <div class="text-center py-6 text-slate-500 bg-slate-900/50 rounded-xl border border-slate-800 text-xs">
+            Tidak ada acara ditemukan dalam rundown.
           </div>
         `;
         return;
       }
 
-      const allCollapsed = filteredRundown.length > 0 && filteredRundown.every(item => item.collapsed);
-      if (txtToggleAll && iconToggleAll) {
-        txtToggleAll.innerText = allCollapsed ? 'Buka' : 'Lipat';
-        iconToggleAll.className = allCollapsed ? 'fa-solid fa-expand text-[10px]' : 'fa-solid fa-compress text-[10px]';
-      }
-
-      filteredRundown.forEach((item) => {
+      filteredRundown.forEach((item, index) => {
         const itemEl = document.createElement('div');
-        const origIndex = ev.rundown.indexOf(item);
-        const isCollapsed = !!item.collapsed;
+        const realIndex = ev.rundown.indexOf(item);
         
-        let statusBadge = '';
+        let statusBadgeClass = '';
+        let statusText = '';
+
         if (item.status === 'done') {
-          statusBadge = `<button onclick="cycleItemStatus(${origIndex}, event)" class="bg-slate-800 hover:bg-slate-700 text-slate-400 text-[10px] px-2 py-0.5 rounded font-medium border border-slate-700 transition-colors" title="Klik untuk ubah status">Selesai</button>`;
+          statusBadgeClass = "bg-slate-800 text-slate-400 border-slate-700";
+          statusText = "Selesai";
         } else if (item.status === 'active') {
-          statusBadge = `<button onclick="cycleItemStatus(${origIndex}, event)" class="bg-emerald-950 hover:bg-emerald-900 text-emerald-400 text-[10px] px-2 py-0.5 rounded font-medium border border-emerald-800/50 flex items-center gap-1 transition-colors" title="Klik untuk ubah status"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Live</button>`;
+          statusBadgeClass = "bg-emerald-950 text-emerald-400 border-emerald-800/50 flex items-center gap-1";
+          statusText = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Live`;
         } else {
-          statusBadge = `<button onclick="cycleItemStatus(${origIndex}, event)" class="bg-indigo-950 hover:bg-indigo-900 text-indigo-300 text-[10px] px-2 py-0.5 rounded font-medium border border-indigo-800/50 transition-colors" title="Klik untuk ubah status">Akan Datang</button>`;
+          statusBadgeClass = "bg-indigo-950 text-indigo-300 border-indigo-800/50";
+          statusText = "Akan Datang";
         }
 
-        const detailsHTML = `
-          <div class="${isCollapsed ? 'hidden' : ''} space-y-2.5 mt-2.5 pt-2.5 border-t border-slate-800/80 transition-all">
-            <!-- Edit Nama Kegiatan / Title -->
-            <div>
-              <label class="text-[9px] text-slate-500 font-semibold block mb-0.5">NAMA/JUDUL KEGIATAN:</label>
-              <input type="text" value="${escapeHtml(item.title)}" onchange="updateItemField(${origIndex}, 'title', this.value)" class="w-full bg-slate-950 border border-slate-800 rounded px-2.5 py-1 text-slate-100 text-xs font-semibold focus:outline-none focus:border-indigo-500" placeholder="Judul Kegiatan">
+        const isCollapsed = item.collapsed !== undefined ? item.collapsed : false;
+
+        itemEl.className = `rounded-xl border transition-all ${item.status === 'active' ? 'bg-slate-900 border-emerald-500/50 shadow-lg shadow-emerald-950/20' : 'bg-slate-900/60 border-slate-800/80 hover:border-slate-700'}`;
+
+        itemEl.innerHTML = `
+          <!-- Accordion Header -->
+          <div class="p-3.5 flex items-center justify-between cursor-pointer select-none" onclick="toggleItemCollapse(${realIndex})">
+            <div class="flex items-center space-x-3 truncate pr-2">
+              <button onclick="event.stopPropagation(); cycleItemStatus(${realIndex})" class="text-[10px] px-2 py-0.5 rounded font-medium border ${statusBadgeClass} shrink-0 transition-transform active:scale-95" title="Klik untuk ubah status manual">
+                ${statusText}
+              </button>
+              <div class="truncate">
+                <div class="flex items-center gap-2">
+                  <span class="font-mono text-xs text-indigo-400 font-bold shrink-0">${item.time}</span>
+                  ${item.notes ? '<i class="fa-solid fa-note-sticky text-amber-400 text-[10px]" title="Memiliki Catatan"></i>' : ''}
+                </div>
+                <h4 class="font-bold text-xs text-slate-100 truncate">${item.title}</h4>
+              </div>
             </div>
 
-            <!-- Edit Location & PIC -->
-            <div class="grid grid-cols-2 gap-2 text-xs">
+            <div class="flex items-center space-x-2 shrink-0">
+              <span class="text-[10px] bg-slate-950 border border-slate-800 text-slate-400 px-2 py-0.5 rounded-full hidden sm:inline-block">${item.pos}</span>
+              <i class="fa-solid fa-chevron-down text-slate-500 text-xs transition-transform duration-200 ${isCollapsed ? '' : 'rotate-180'}"></i>
+            </div>
+          </div>
+
+          <!-- Accordion Collapsible Body (Details & Editing) -->
+          <div class="px-3.5 pb-3.5 pt-1 space-y-3 border-t border-slate-800/60 ${isCollapsed ? 'hidden' : 'block'}">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
               <div>
-                <label class="text-[9px] text-slate-500 font-semibold block">LOKASI / POS:</label>
-                <input type="text" value="${escapeHtml(item.pos)}" onchange="updateItemField(${origIndex}, 'pos', this.value)" class="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-slate-200 text-xs focus:outline-none focus:border-indigo-500" placeholder="Lokasi">
+                <label class="block text-[10px] text-slate-400 font-medium mb-1 uppercase">Nama / Judul Kegiatan</label>
+                <input type="text" value="${escapeHtml(item.title)}" onchange="updateRundownField(${realIndex}, 'title', this.value)" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-slate-100 focus:border-indigo-500 focus:outline-none">
               </div>
+
               <div>
-                <label class="text-[9px] text-slate-500 font-semibold block">PJ (PERSON IN CHARGE):</label>
-                <input type="text" value="${escapeHtml(item.pic)}" onchange="updateItemField(${origIndex}, 'pic', this.value)" class="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-slate-200 text-xs focus:outline-none focus:border-indigo-500" placeholder="PJ">
+                <label class="block text-[10px] text-slate-400 font-medium mb-1 uppercase">Jam Kegiatan (Format HH:MM - HH:MM)</label>
+                <input type="text" value="${escapeHtml(item.time)}" onchange="updateRundownField(${realIndex}, 'time', this.value)" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-indigo-300 font-mono focus:border-indigo-500 focus:outline-none">
+              </div>
+
+              <div>
+                <label class="block text-[10px] text-slate-400 font-medium mb-1 uppercase">Lokasi / Pos</label>
+                <input type="text" value="${escapeHtml(item.pos)}" onchange="updateRundownField(${realIndex}, 'pos', this.value)" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-slate-200 focus:border-indigo-500 focus:outline-none">
+              </div>
+
+              <div>
+                <label class="block text-[10px] text-slate-400 font-medium mb-1 uppercase">Penanggung Jawab (PJ)</label>
+                <input type="text" value="${escapeHtml(item.pic)}" onchange="updateRundownField(${realIndex}, 'pic', this.value)" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-slate-200 focus:border-indigo-500 focus:outline-none">
               </div>
             </div>
 
-            <!-- Edit Notes -->
+            <!-- Notes Field per Activity -->
             <div>
-              <div class="flex items-center justify-between mb-1">
-                <span class="text-[10px] text-amber-400/90 font-semibold flex items-center gap-1">
-                  <i class="fa-regular fa-note-sticky"></i> Notes / Catatan Sesi:
-                </span>
-                <span class="text-[9px] text-slate-500 italic">Auto-saved</span>
-              </div>
-              <textarea 
-                class="w-full bg-slate-950 border border-slate-800 focus:border-amber-500/50 rounded-lg p-2 text-xs text-slate-200 focus:outline-none transition-colors resize-none" 
-                rows="2" 
-                placeholder="Tulis catatan penting (misal: MIC standby, BGM ready, tamu VIP)..."
-                oninput="updateSessionNote(${origIndex}, this.value)"
-              >${escapeHtml(item.notes || '')}</textarea>
+              <label class="block text-[10px] text-amber-400 font-bold mb-1 uppercase flex items-center gap-1">
+                <i class="fa-solid fa-pen-to-square text-[10px]"></i> Notes / Instruksi Khusus Kegiatan Ini
+              </label>
+              <textarea rows="2" placeholder="Tulis instruksi khusus (misal: BGM siap, MIC 2 standby, dll)..." onchange="updateRundownField(${realIndex}, 'notes', this.value)" class="w-full bg-slate-950 border border-amber-500/30 rounded-lg p-2 text-xs text-amber-200 focus:border-amber-500 focus:outline-none font-sans">${escapeHtml(item.notes || '')}</textarea>
             </div>
 
-            <!-- Action Toolbar: Delete Button -->
+            <!-- Delete Item Action -->
             <div class="flex justify-end pt-1">
-              <button onclick="deleteRundownItem(${origIndex}, event)" class="text-rose-400 hover:text-rose-300 hover:bg-rose-950/40 border border-rose-900/40 px-2.5 py-1 rounded-lg text-[11px] font-medium transition-colors flex items-center gap-1.5">
-                <i class="fa-regular fa-trash-can text-[10px]"></i>
-                <span>Hapus Sesi Ini</span>
+              <button onclick="deleteRundownItem(${realIndex})" class="text-[11px] text-rose-400 hover:text-rose-300 font-medium flex items-center gap-1 p-1 rounded hover:bg-rose-950/40 transition-colors">
+                <i class="fa-solid fa-trash-can text-xs"></i> Hapus Sesi Ini
               </button>
             </div>
           </div>
         `;
 
-        if (style === 'timeline') {
-          itemEl.className = `p-3.5 rounded-xl border transition-all ${item.status === 'active' ? 'bg-slate-900 border-emerald-500/50 shadow-lg shadow-emerald-950/20' : 'bg-slate-900/60 border-slate-800 hover:border-slate-700'}`;
-          itemEl.innerHTML = `
-            <div class="flex items-center justify-between cursor-pointer select-none" onclick="toggleItemCollapse(${origIndex})">
-              <div class="space-y-1 flex-1 pr-2">
-                <div class="flex items-center space-x-2">
-                  <input type="text" value="${escapeHtml(item.time)}" onclick="event.stopPropagation()" onchange="updateItemTime(${origIndex}, this.value)" class="font-mono text-xs text-indigo-400 font-bold bg-slate-950 border border-slate-800 rounded px-1.5 py-0.5 w-32 focus:outline-none focus:border-indigo-500" title="Klik untuk edit jam langsung">
-                  ${statusBadge}
-                </div>
-                <h4 class="font-bold text-xs text-slate-100 flex items-center gap-1.5">
-                  <span>${escapeHtml(item.title)}</span>
-                  ${isCollapsed && item.notes ? '<i class="fa-solid fa-note-sticky text-amber-400 text-[10px]" title="Ada catatan"></i>' : ''}
-                </h4>
-              </div>
-              <div class="flex items-center gap-1.5">
-                <button onclick="deleteRundownItem(${origIndex}, event)" class="w-7 h-7 rounded-lg bg-slate-950/80 hover:bg-rose-950/60 hover:text-rose-400 border border-slate-800 flex items-center justify-center text-slate-500 transition-colors" title="Hapus Kegiatan">
-                  <i class="fa-regular fa-trash-can text-xs"></i>
-                </button>
-                <button class="w-7 h-7 rounded-lg bg-slate-950/80 hover:bg-slate-800 border border-slate-800 flex items-center justify-center text-slate-400 hover:text-white transition-transform ${isCollapsed ? '' : 'rotate-180'}" title="${isCollapsed ? 'Buka Detail' : 'Lipat Detail'}">
-                  <i class="fa-solid fa-chevron-down text-xs"></i>
-                </button>
-              </div>
-            </div>
-            ${detailsHTML}
-          `;
-        } else if (style === 'grid') {
-          itemEl.className = `p-3.5 rounded-xl bg-slate-900 border border-slate-800 flex flex-col justify-between`;
-          itemEl.innerHTML = `
-            <div class="flex items-center justify-between cursor-pointer select-none" onclick="toggleItemCollapse(${origIndex})">
-              <div class="space-y-1 flex-1 pr-2">
-                <div class="flex justify-between items-center pr-2">
-                  <input type="text" value="${escapeHtml(item.time)}" onclick="event.stopPropagation()" onchange="updateItemTime(${origIndex}, this.value)" class="font-mono text-xs text-indigo-400 font-bold bg-slate-950 border border-slate-800 rounded px-1.5 py-0.5 w-32 focus:outline-none focus:border-indigo-500">
-                  ${statusBadge}
-                </div>
-                <h4 class="font-bold text-xs text-slate-100 flex items-center gap-1.5">
-                  <span>${escapeHtml(item.title)}</span>
-                  ${isCollapsed && item.notes ? '<i class="fa-solid fa-note-sticky text-amber-400 text-[10px]" title="Ada catatan"></i>' : ''}
-                </h4>
-              </div>
-              <div class="flex items-center gap-1.5">
-                <button onclick="deleteRundownItem(${origIndex}, event)" class="w-7 h-7 rounded-lg bg-slate-950/80 hover:bg-rose-950/60 hover:text-rose-400 border border-slate-800 flex items-center justify-center text-slate-500 transition-colors" title="Hapus Kegiatan">
-                  <i class="fa-regular fa-trash-can text-xs"></i>
-                </button>
-                <button class="w-7 h-7 rounded-lg bg-slate-950/80 hover:bg-slate-800 border border-slate-800 flex items-center justify-center text-slate-400 hover:text-white transition-transform ${isCollapsed ? '' : 'rotate-180'}">
-                  <i class="fa-solid fa-chevron-down text-xs"></i>
-                </button>
-              </div>
-            </div>
-            ${detailsHTML}
-          `;
-        } else {
-          // Compact View
-          itemEl.className = `p-3 bg-slate-900 border border-slate-800 rounded-xl flex flex-col text-xs`;
-          itemEl.innerHTML = `
-            <div class="flex items-center justify-between cursor-pointer select-none" onclick="toggleItemCollapse(${origIndex})">
-              <div class="flex items-center space-x-2 truncate mr-2 flex-1">
-                <input type="text" value="${escapeHtml(item.time)}" onclick="event.stopPropagation()" onchange="updateItemTime(${origIndex}, this.value)" class="font-mono text-[11px] text-indigo-400 font-bold bg-slate-950 border border-slate-800 rounded px-1.5 py-0.5 w-28 focus:outline-none focus:border-indigo-500">
-                <span class="text-slate-200 truncate font-medium">${escapeHtml(item.title)}</span>
-                ${isCollapsed && item.notes ? '<i class="fa-solid fa-note-sticky text-amber-400 text-[10px]" title="Ada catatan"></i>' : ''}
-              </div>
-              <div class="flex items-center space-x-1.5">
-                ${statusBadge}
-                <button onclick="deleteRundownItem(${origIndex}, event)" class="w-6 h-6 rounded bg-slate-950/80 hover:bg-rose-950/60 hover:text-rose-400 border border-slate-800 flex items-center justify-center text-slate-500 transition-colors" title="Hapus">
-                  <i class="fa-regular fa-trash-can text-[10px]"></i>
-                </button>
-                <button class="w-6 h-6 rounded bg-slate-950 border border-slate-800 flex items-center justify-center text-slate-400 hover:text-white transition-transform ${isCollapsed ? '' : 'rotate-180'}">
-                  <i class="fa-solid fa-chevron-down text-[10px]"></i>
-                </button>
-              </div>
-            </div>
-            ${detailsHTML}
-          `;
-        }
-
         digitalRundownContainer.appendChild(itemEl);
       });
     }
 
-    // UTILITY: ESCAPE HTML TO PREVENT XSS IN INPUT VALUES
-    function escapeHtml(str) {
-      if (!str) return '';
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
+    // ITEM ACCORDION TOGGLE HANDLER
+    function toggleItemCollapse(index) {
+      const ev = events.find(e => e.id === activeEventId);
+      if (!ev || !ev.rundown[index]) return;
+      ev.rundown[index].collapsed = !ev.rundown[index].collapsed;
+      saveEvents();
+      renderDigitalRundown();
     }
 
-    // ADD NEW MANUAL RUNDOWN ITEM
-    if (btnAddManualItem) {
-      btnAddManualItem.onclick = () => {
+    // TOGGLE ALL ACCORDIONS
+    if (btnToggleCollapseAll) {
+      btnToggleCollapseAll.onclick = () => {
+        const ev = events.find(e => e.id === activeEventId);
+        if (!ev) return;
+        areAllCollapsed = !areAllCollapsed;
+        ev.rundown.forEach(item => item.collapsed = areAllCollapsed);
+        collapseAllLabel.innerText = areAllCollapsed ? "Buka Semua" : "Lipat Semua";
+        saveEvents();
+        renderDigitalRundown();
+      };
+    }
+
+    // UPDATE ITEM FIELDS INLINE
+    function updateRundownField(index, field, value) {
+      const ev = events.find(e => e.id === activeEventId);
+      if (!ev || !ev.rundown[index]) return;
+      ev.rundown[index][field] = value;
+      saveEvents();
+      if (field === 'notes' || field === 'title' || field === 'time') {
+        updateLiveSessionUI();
+      }
+    }
+
+    // CYCLE STATUS MANUAL OVERRIDE
+    function cycleItemStatus(index) {
+      const ev = events.find(e => e.id === activeEventId);
+      if (!ev || !ev.rundown[index]) return;
+      
+      const current = ev.rundown[index].status;
+      if (current === 'upcoming') ev.rundown[index].status = 'active';
+      else if (current === 'active') ev.rundown[index].status = 'done';
+      else ev.rundown[index].status = 'upcoming';
+
+      saveEvents();
+      renderDigitalRundown();
+      updateLiveSessionUI();
+    }
+
+    // DELETE RUNDOWN ITEM
+    function deleteRundownItem(index) {
+      const ev = events.find(e => e.id === activeEventId);
+      if (!ev) return;
+      ev.rundown.splice(index, 1);
+      saveEvents();
+      renderDigitalRundown();
+      updateLiveSessionUI();
+      showToast('Sesi kegiatan dihapus.');
+    }
+
+    // ADD NEW RUNDOWN ITEM MANUALLY
+    if (btnAddItemManual) {
+      btnAddItemManual.onclick = () => {
         const ev = events.find(e => e.id === activeEventId);
         if (!ev) return;
 
-        let nextStartTime = '10:00 - 10:30';
+        let nextStartTime = '10:00';
         if (ev.rundown.length > 0) {
           const lastItem = ev.rundown[ev.rundown.length - 1];
-          const parts = lastItem.time.split(/-|–|—|s\/d|s\.d\.|sd|sampai/i);
-          if (parts.length >= 2) {
-            const lastEndTime = parts[1].trim();
-            const newStart = addMinutesToTimeStr(lastEndTime, 0);
-            const newEnd = addMinutesToTimeStr(lastEndTime, 30);
-            nextStartTime = `${newStart} - ${newEnd}`;
-          }
+          const parts = lastItem.time.split(/-|–|—|s\/d/i);
+          if (parts.length > 1) nextStartTime = parts[1].trim();
         }
 
         const newItem = {
-          time: nextStartTime,
-          title: 'Sesi Kegiatan Baru',
-          pic: 'Kenzie',
-          pos: 'Main Stage',
-          status: ev.rundown.length === 0 ? 'active' : 'upcoming',
-          tag: 'Operasional',
+          time: `${nextStartTime} - ${addMinutesToTimeStr(nextStartTime, 30)}`,
+          title: 'Kegiatan Baru',
+          pic: 'Panitia',
+          pos: 'Stage',
+          status: 'upcoming',
+          tag: 'Umum',
           notes: '',
           collapsed: false
         };
@@ -827,204 +940,122 @@
         ev.rundown.push(newItem);
         saveEvents();
         renderDigitalRundown();
-        updateLiveSessionUI();
-        showToast('Sesi kegiatan baru berhasil ditambahkan!');
+        showToast('+ Sesi kegiatan baru ditambahkan!');
       };
     }
 
-    // DELETE INDIVIDUAL RUNDOWN ITEM
-    window.deleteRundownItem = function(index, event) {
-      if (event) event.stopPropagation();
+    // TAB SWITCHER LOGIC
+    if (tabInputText && tabInputFile) {
+      tabInputText.onclick = () => {
+        tabInputText.className = "w-1/2 py-1.5 rounded-lg bg-indigo-600 text-white font-medium transition-all";
+        tabInputFile.className = "w-1/2 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 font-medium transition-all";
+        containerInputText.classList.remove('hidden');
+        containerInputFile.classList.add('hidden');
+      };
 
-      const ev = events.find(e => e.id === activeEventId);
-      if (!ev || !ev.rundown[index]) return;
-
-      const deletedTitle = ev.rundown[index].title;
-      ev.rundown.splice(index, 1);
-
-      // If active item was deleted and there are remaining items, set first to active
-      if (ev.rundown.length > 0 && !ev.rundown.some(r => r.status === 'active')) {
-        ev.rundown[0].status = 'active';
-      }
-
-      saveEvents();
-      renderDigitalRundown();
-      updateLiveSessionUI();
-      showToast(`" ${deletedTitle} " berhasil dihapus.`);
-    };
-
-    // UPDATE ITEM TIME DIRECTLY
-    window.updateItemTime = function(index, newTimeStr) {
-      const ev = events.find(e => e.id === activeEventId);
-      if (!ev || !ev.rundown[index]) return;
-
-      ev.rundown[index].time = newTimeStr;
-      saveEvents();
-      if (ev.rundown[index].status === 'active') {
-        updateLiveSessionUI();
-      }
-      showToast('Waktu kegiatan diperbarui.');
-    };
-
-    // UPDATE ANY ITEM FIELD DIRECTLY (Title, POS, PIC, Tag, etc.)
-    window.updateItemField = function(index, field, value) {
-      const ev = events.find(e => e.id === activeEventId);
-      if (!ev || !ev.rundown[index]) return;
-
-      ev.rundown[index][field] = value;
-      saveEvents();
-      
-      // Update UI title dynamically without re-rendering everything if editing
-      if (field === 'title' || field === 'pos' || field === 'pic') {
-        if (ev.rundown[index].status === 'active') {
-          updateLiveSessionUI();
-        }
-      }
-    };
-
-    // CYCLE STATUS (DONE -> ACTIVE -> UPCOMING)
-    window.cycleItemStatus = function(index, event) {
-      if (event) event.stopPropagation();
-      const ev = events.find(e => e.id === activeEventId);
-      if (!ev || !ev.rundown[index]) return;
-
-      const currentStatus = ev.rundown[index].status;
-      let nextStatus = 'upcoming';
-      if (currentStatus === 'upcoming') nextStatus = 'active';
-      else if (currentStatus === 'active') nextStatus = 'done';
-      else if (currentStatus === 'done') nextStatus = 'upcoming';
-
-      if (nextStatus === 'active') {
-        ev.rundown.forEach((r, i) => {
-          if (i !== index && r.status === 'active') r.status = 'done';
-        });
-      }
-
-      ev.rundown[index].status = nextStatus;
-      saveEvents();
-      renderDigitalRundown();
-      updateLiveSessionUI();
-      showToast(`Status diset: ${nextStatus.toUpperCase()}`);
-    };
-
-    // TOGGLE SINGLE ITEM COLLAPSE
-    window.toggleItemCollapse = function(index) {
-      const ev = events.find(e => e.id === activeEventId);
-      if (!ev || !ev.rundown[index]) return;
-
-      ev.rundown[index].collapsed = !ev.rundown[index].collapsed;
-      saveEvents();
-      renderDigitalRundown();
-    };
-
-    // TOGGLE ALL ITEMS COLLAPSE
-    if (btnToggleAllCollapse) {
-      btnToggleAllCollapse.onclick = () => {
-        const ev = events.find(e => e.id === activeEventId);
-        if (!ev || ev.rundown.length === 0) return;
-
-        const anyUncollapsed = ev.rundown.some(item => !item.collapsed);
-        ev.rundown.forEach(item => {
-          item.collapsed = anyUncollapsed;
-        });
-
-        saveEvents();
-        renderDigitalRundown();
-        showToast(anyUncollapsed ? 'Semua kegiatan dilipat.' : 'Semua kegiatan dibuka.');
+      tabInputFile.onclick = () => {
+        tabInputFile.className = "w-1/2 py-1.5 rounded-lg bg-indigo-600 text-white font-medium transition-all";
+        tabInputText.className = "w-1/2 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 font-medium transition-all";
+        containerInputFile.classList.remove('hidden');
+        containerInputText.classList.add('hidden');
       };
     }
 
-    // UPDATE NOTE PER ITEM IN REAL-TIME
-    window.updateSessionNote = function(index, textValue) {
-      const ev = events.find(e => e.id === activeEventId);
-      if (!ev || !ev.rundown[index]) return;
+    // FILE UPLOAD HANDLER
+    if (fileRundownUpload) {
+      fileRundownUpload.onchange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          selectedFile = file;
+          selectedFilenameText.innerText = file.name;
+          fileNamePreview.classList.remove('hidden');
 
-      ev.rundown[index].notes = textValue;
-      saveEvents();
-
-      if (ev.rundown[index].status === 'active') {
-        liveNotesText.innerText = textValue.trim() !== '' ? textValue : 'Belum ada catatan khusus untuk sesi ini.';
-      }
-    };
-
-    // CONVERT RUNDOWN (TEXT / IMAGE OCR)
-    btnConvertRundown.onclick = async () => {
-      aiLoading.classList.remove('hidden');
-      ocrProgressBar.style.width = '20%';
-
-      let rawText = '';
-
-      if (!contentInputFile.classList.contains('hidden') && selectedFile && selectedFile.type.startsWith('image/')) {
-        loadingStatusText.innerText = "Proses OCR Membaca Teks Gambar...";
-        ocrProgressBar.style.width = '50%';
-        
-        try {
-          const result = await Tesseract.recognize(selectedFile, 'ind+eng', {
-            logger: m => {
-              if (m.status === 'recognizing text') {
-                ocrProgressBar.style.width = `${Math.round(m.progress * 100)}%`;
-              }
-            }
-          });
-          rawText = result.data.text;
-        } catch (err) {
-          console.error(err);
-          rawText = rawRundownInput.value;
+          if (file.type.includes('text') || file.name.endsWith('.txt') || file.name.endsWith('.csv')) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+              rawRundownInput.value = event.target.result;
+            };
+            reader.readAsText(file);
+          }
         }
-      } else {
-        rawText = rawRundownInput.value;
-      }
+      };
+    }
 
-      ocrProgressBar.style.width = '90%';
-      loadingStatusText.innerText = "Sistem Menyelaraskan Jam & Sesi...";
-
-      setTimeout(() => {
-        aiLoading.classList.add('hidden');
-        ocrProgressBar.style.width = '0%';
-
-        if (!rawText.trim()) {
-          showToast('Teks atau foto rundown tidak terdeteksi.');
+    // AI CONVERTER CLICK HANDLER
+    if (btnConvertRundown) {
+      btnConvertRundown.onclick = () => {
+        const text = rawRundownInput.value.trim();
+        if (!text && !selectedFile) {
+          showToast('Masukkan teks atau pilih file foto/dokumen terlebih dahulu.');
           return;
         }
 
-        const lines = rawText.split('\n').filter(l => l.trim().length > 2);
-        const newRundown = lines.map((line, idx) => {
-          const parsed = parseLineTimeAndTitle(line);
+        aiLoading.classList.remove('hidden');
 
-          // Fallback time if no time extracted
-          const defaultTime = `0${8+idx}:00 - 0${8+idx}:30`;
+        setTimeout(() => {
+          aiLoading.classList.add('hidden');
+          
+          let lines = text.split('\n').filter(l => l.trim() !== '');
+          if (lines.length === 0) {
+            lines = [
+              '08:00 - 08:30 | Briefing Tim & Persiapan Area | PJ: Kenzie | Pos: Gate Utama',
+              '08:30 - 09:30 | Pembukaan & Sambutan | PJ: Misba | Pos: Main Stage',
+              '09:30 - 11:30 | Sesi Kegiatan Utama | PJ: Dimas | Pos: Area Utama'
+            ];
+          }
 
-          return {
-            time: parsed.timeStr || defaultTime,
-            title: parsed.title,
-            pic: parsed.pic,
-            pos: parsed.pos,
-            status: idx === 0 ? 'done' : (idx === 1 ? 'active' : 'upcoming'),
-            tag: idx % 2 === 0 ? 'Operasional' : 'Stage',
-            notes: '',
-            collapsed: false
-          };
-        });
+          const newRundown = lines.map((line, idx) => {
+            const timeMatch = line.match(/(\d{1,2}[\.:]\d{2}\s*(?:-|–|—|s\/d|sampai)\s*\d{1,2}[\.:]\d{2})/i) || line.match(/(\d{1,2}[\.:]\d{2})/);
+            const timeStr = timeMatch ? timeMatch[0] : `0${8+idx}:00 - 0${8+idx}:30`;
 
-        const ev = events.find(e => e.id === activeEventId);
-        if (ev) {
-          ev.rundown = newRundown;
-          saveEvents();
-          renderDigitalRundown();
-          updateLiveSessionUI();
-          showToast('✨ Rundown berhasil dikonversi dengan presisi waktu!');
-        }
-      }, 600);
-    };
+            let cleanText = line.replace(timeStr, '').replace(/\|/g, ' ').trim();
+            let pic = 'Kenzie';
+            let pos = 'Main Stage';
+            let notes = '';
 
-    // UPDATE LIVE SESSION UI & NOTES
+            if (cleanText.includes('PJ:')) {
+              const parts = cleanText.split('PJ:');
+              cleanText = parts[0].trim();
+              pic = parts[1].split('Pos:')[0].trim();
+            }
+
+            if (line.includes('Pos:')) {
+              pos = line.split('Pos:')[1].trim();
+            }
+
+            return {
+              time: timeStr,
+              title: cleanText || `Sesi Acara ${idx + 1}`,
+              pic: pic,
+              pos: pos,
+              status: idx === 0 ? 'active' : 'upcoming',
+              tag: 'Operasional',
+              notes: notes,
+              collapsed: true
+            };
+          });
+
+          const ev = events.find(e => e.id === activeEventId);
+          if (ev) {
+            ev.rundown = newRundown;
+            saveEvents();
+            syncRundownWithRealTime();
+            renderDigitalRundown();
+            updateLiveSessionUI();
+            showToast('✨ Rundown berhasil dikonversi oleh AI!');
+          }
+        }, 1200);
+      };
+    }
+
+    // UPDATE LIVE SESSION CONTROL PANEL UI
     function updateLiveSessionUI() {
       const ev = events.find(e => e.id === activeEventId);
       if (!ev || ev.rundown.length === 0) {
         liveTitle.innerText = 'Tidak Ada Sesi Aktif';
         livePos.innerHTML = `<i class="fa-solid fa-location-dot"></i> -`;
         livePic.innerHTML = `<i class="fa-solid fa-user"></i> -`;
-        liveNotesText.innerText = 'Belum ada catatan khusus.';
+        if (liveNotesText) liveNotesText.innerText = 'Tidak ada catatan khusus.';
         nextTitle.innerText = '-';
         nextTime.innerText = '--:--';
         return;
@@ -1037,26 +1068,67 @@
       liveTitle.innerText = activeItem.title;
       livePos.innerHTML = `<i class="fa-solid fa-location-dot text-indigo-400"></i> ${activeItem.pos}`;
       livePic.innerHTML = `<i class="fa-solid fa-user text-indigo-400"></i> PJ: ${activeItem.pic}`;
-      liveNotesText.innerText = activeItem.notes && activeItem.notes.trim() !== '' ? activeItem.notes : 'Belum ada catatan khusus untuk sesi ini.';
+
+      // Live Notes Update
+      if (liveNotesText) {
+        if (activeItem.notes && activeItem.notes.trim() !== '') {
+          liveNotesText.innerText = activeItem.notes;
+          liveNotesBox.classList.remove('hidden');
+        } else {
+          liveNotesText.innerText = 'Tidak ada catatan khusus untuk sesi ini.';
+        }
+      }
 
       if (nextItem) {
         nextTitle.innerText = nextItem.title;
-        nextTime.innerText = nextItem.time.split('-')[0].trim();
+        nextTime.innerText = nextItem.time.split(/-|–|—|s\/d/i)[0].trim();
       } else {
         nextTitle.innerText = 'Sesi Terakhir Event';
         nextTime.innerText = 'Selesai';
       }
     }
 
-    // TIMER LOGIC
+    // TIMER LOGIC WITH SYSTEM NOTIFICATION TRANSITION
     function startTimer() {
       clearInterval(timerInterval);
       timerInterval = setInterval(() => {
+        if (isRealTimeSync && activeEventId) {
+          syncRundownWithRealTime();
+          updateLiveSessionUI();
+        }
+
         if (!isPaused && remainingSeconds > 0) {
-          remainingSeconds--;
+          if (!isRealTimeSync) remainingSeconds--;
           const m = Math.floor(remainingSeconds / 60).toString().padStart(2, '0');
           const s = (remainingSeconds % 60).toString().padStart(2, '0');
-          liveTimerDisplay.innerText = `${m}:${s}`;
+          if (liveTimerDisplay) liveTimerDisplay.innerText = `${m}:${s}`;
+
+          if (remainingSeconds === 0 && !isRealTimeSync) {
+            const ev = events.find(e => e.id === activeEventId);
+            if (ev) {
+              const activeIdx = ev.rundown.findIndex(r => r.status === 'active');
+              if (activeIdx !== -1 && activeIdx < ev.rundown.length - 1) {
+                const finishedSession = ev.rundown[activeIdx];
+                const nextSession = ev.rundown[activeIdx + 1];
+
+                ev.rundown[activeIdx].status = 'done';
+                ev.rundown[activeIdx + 1].status = 'active';
+                remainingSeconds = 30 * 60;
+
+                saveEvents();
+                renderDigitalRundown();
+                updateLiveSessionUI();
+
+                triggerSystemNotification(
+                  `⏰ PERGANTIAN SESI: ${nextSession.title}`,
+                  `Sesi "${finishedSession.title}" telah selesai!\nSekarang: ${nextSession.title} (PJ: ${nextSession.pic})`
+                );
+                showToast(`📢 Pergantian Sesi: ${nextSession.title}`);
+              }
+            }
+          }
+        } else if (remainingSeconds <= 0 && isRealTimeSync) {
+          if (liveTimerDisplay) liveTimerDisplay.innerText = "00:00";
         }
       }, 1000);
     }
@@ -1069,6 +1141,10 @@
     function shiftRundownTimes(minutes) {
       const ev = events.find(e => e.id === activeEventId);
       if (!ev || ev.rundown.length === 0) return;
+
+      if (isRealTimeSync && btnModeSim) {
+        btnModeSim.click();
+      }
 
       const activeIdx = ev.rundown.findIndex(r => r.status === 'active');
       const startIdx = activeIdx !== -1 ? activeIdx : 0;
@@ -1091,19 +1167,44 @@
       saveEvents();
       renderDigitalRundown();
       updateLiveSessionUI();
-      showToast(`Jadwal & timer disesuaikan (${minutes > 0 ? '+' : ''}${minutes} menit)!`);
+      showToast(`Jadwal disesuaikan (${minutes > 0 ? '+' : ''}${minutes} menit)!`);
     }
 
-    // PAUSE TIMER
+    function addMinutesToTimeStr(timeStr, mins) {
+      try {
+        const matches = timeStr.match(/(\d{1,2})[\.:](\d{2})/);
+        if (!matches) return timeStr;
+        let h = parseInt(matches[1], 10);
+        let m = parseInt(matches[2], 10) + mins;
+
+        let date = new Date();
+        date.setHours(h, m, 0);
+
+        const nh = date.getHours().toString().padStart(2, '0');
+        const nm = date.getMinutes().toString().padStart(2, '0');
+        return `${nh}:${nm}`;
+      } catch (e) {
+        return timeStr;
+      }
+    }
+
+    // PAUSE TIMER BUTTON
     if (btnPauseLive) {
       btnPauseLive.onclick = () => {
         isPaused = !isPaused;
-        if (pauseText) pauseText.innerText = isPaused ? 'Resume' : 'Pause';
-        showToast(isPaused ? 'Timer di-pause.' : 'Timer dilanjutkan.');
+        if (isPaused) {
+          pauseText.innerText = 'Resume';
+          btnPauseLive.classList.add('bg-amber-950', 'text-amber-300');
+          showToast('Timer di-pause.');
+        } else {
+          pauseText.innerText = 'Pause';
+          btnPauseLive.classList.remove('bg-amber-950');
+          showToast('Timer dilanjutkan.');
+        }
       };
     }
 
-    // NEXT SESSION
+    // NEXT SESSION BUTTON
     if (btnNextSession) {
       btnNextSession.onclick = () => {
         const ev = events.find(e => e.id === activeEventId);
@@ -1111,48 +1212,39 @@
 
         const activeIdx = ev.rundown.findIndex(r => r.status === 'active');
         if (activeIdx !== -1 && activeIdx < ev.rundown.length - 1) {
+          const finishedSession = ev.rundown[activeIdx];
+          const nextSession = ev.rundown[activeIdx + 1];
+
           ev.rundown[activeIdx].status = 'done';
           ev.rundown[activeIdx + 1].status = 'active';
           remainingSeconds = 30 * 60;
+
           saveEvents();
           renderDigitalRundown();
           updateLiveSessionUI();
-          showToast('Pindah ke sesi berikutnya!');
+
+          triggerSystemNotification(
+            `⏰ PERGANTIAN SESI: ${nextSession.title}`,
+            `Sesi "${finishedSession.title}" telah selesai!\nSekarang: ${nextSession.title}`
+          );
+          showToast(`Lanjut ke sesi: ${nextSession.title}`);
         } else {
-          showToast('Sudah di sesi terakhir!');
+          showToast('Sudah berada di sesi terakhir!');
         }
       };
     }
 
-    // ADD EVENT MODAL HANDLERS
-    if (btnOpenAddEvent) {
-      btnOpenAddEvent.onclick = () => {
-        if (modalAddEvent) modalAddEvent.classList.remove('hidden');
-      };
-    }
-
-    if (btnCloseModal) {
-      btnCloseModal.onclick = () => {
-        if (modalAddEvent) modalAddEvent.classList.add('hidden');
-      };
-    }
-
-    if (btnCancelModal) {
-      btnCancelModal.onclick = () => {
-        if (modalAddEvent) modalAddEvent.classList.add('hidden');
-      };
-    }
+    // ADD EVENT MODAL EVENT HANDLERS
+    if (btnOpenAddEvent) btnOpenAddEvent.onclick = () => modalAddEvent.classList.remove('hidden');
+    if (btnCloseModal) btnCloseModal.onclick = () => modalAddEvent.classList.add('hidden');
+    if (btnCancelModal) btnCancelModal.onclick = () => modalAddEvent.classList.add('hidden');
 
     if (formAddEvent) {
       formAddEvent.onsubmit = (e) => {
         e.preventDefault();
-        const nameInput = document.getElementById('input-event-name');
-        const dateInput = document.getElementById('input-event-date');
-        const metaInput = document.getElementById('input-event-meta');
-
-        const name = nameInput ? nameInput.value : 'Event Baru';
-        const date = dateInput ? dateInput.value : new Date().toISOString().split('T')[0];
-        const meta = metaInput ? metaInput.value : '';
+        const name = document.getElementById('input-event-name').value;
+        const date = document.getElementById('input-event-date').value;
+        const meta = document.getElementById('input-event-meta').value;
 
         const newEv = {
           id: 'ev-' + Date.now(),
@@ -1160,24 +1252,24 @@
           date,
           meta,
           rundown: [
-            { time: '08:00 - 08:30', title: 'Briefing & Check-in Panitia', pic: 'Kenzie', pos: 'Pos Utama', status: 'active', tag: 'Awal', notes: '', collapsed: false },
-            { time: '08:30 - 09:30', title: 'Pembukaan & Seremonial', pic: 'Kenzie', pos: 'Main Stage', status: 'upcoming', tag: 'Acara', notes: '', collapsed: false }
+            { time: '08:00 - 08:30', title: 'Persiapan & Check-in Panitia', pic: 'Kenzie', pos: 'Gate Utama', status: 'active', tag: 'Awal', notes: 'Briefing tim di gate.', collapsed: true },
+            { time: '08:30 - 09:30', title: 'Sesi Pembukaan Acara', pic: 'Kenzie', pos: 'Main Stage', status: 'upcoming', tag: 'Acara', notes: '', collapsed: true }
           ]
         };
 
         events.unshift(newEv);
         saveEvents();
-        if (modalAddEvent) modalAddEvent.classList.add('hidden');
+        modalAddEvent.classList.add('hidden');
         formAddEvent.reset();
         renderHomeScreen();
-        showToast('Event baru berhasil ditambahkan!');
+        showToast('Event baru berhasil dibuat!');
       };
     }
 
     // DELETE ENTIRE EVENT
     if (btnDeleteEvent) {
       btnDeleteEvent.onclick = () => {
-        if (confirm("Apakah Anda yakin ingin menghapus seluruh event ini beserta rundown-nya?")) {
+        if (confirm('Yakin ingin menghapus seluruh event ini beserta rundown-nya?')) {
           events = events.filter(e => e.id !== activeEventId);
           saveEvents();
           renderHomeScreen();
@@ -1186,197 +1278,37 @@
       };
     }
 
-    // NAVIGATION & FILTERS
+    // NAVIGATION & UTILS
     if (btnBack) btnBack.onclick = () => renderHomeScreen();
     if (selectAiStyle) selectAiStyle.onchange = () => renderDigitalRundown();
     if (rundownSearch) rundownSearch.oninput = () => renderDigitalRundown();
 
-    // LOCAL STORAGE & TOAST
     function saveEvents() {
       localStorage.setItem('koorlap_events', JSON.stringify(events));
-    }
-
-    // SYSTEM NOTIFICATIONS, AUDIO BEEP & VIBRATION ENGINE
-    function playNotificationSound() {
-      try {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(880, audioCtx.currentTime); // Pitch A5
-        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 1.2);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 1.2);
-      } catch (e) {
-        console.log("Audio feedback error or blocked:", e);
-      }
-    }
-
-    function triggerSystemNotification(title, message) {
-      // Audio & Vibration Alert
-      playNotificationSound();
-      if ("vibrate" in navigator) {
-        navigator.vibrate([200, 100, 200, 100, 300]);
-      }
-
-      // Native Device/Browser Notification
-      if ("Notification" in window && Notification.permission === "granted") {
-        try {
-          new Notification(title, {
-            body: message,
-            icon: 'https://cdn-icons-png.flaticon.com/512/3239/3239952.png',
-            tag: 'koorlap-rundown-alert',
-            renotify: true
-          });
-        } catch (e) {
-          console.log("Push Notification failed:", e);
-        }
-      }
-    }
-
-    function updateNotifButtonUI() {
-      if (!btnToggleNotif || !iconNotif || !txtNotif) return;
-
-      if (!("Notification" in window)) {
-        txtNotif.innerText = "Tidak Didukung";
-        iconNotif.className = "fa-solid fa-bell-slash text-slate-600";
-        return;
-      }
-
-      if (Notification.permission === "granted") {
-        txtNotif.innerText = "Notif On";
-        btnToggleNotif.className = "px-2.5 py-1 rounded-full bg-emerald-950 text-emerald-400 text-[11px] font-semibold border border-emerald-800/50 flex items-center gap-1.5 transition-colors";
-        iconNotif.className = "fa-solid fa-bell text-xs text-emerald-400";
-      } else if (Notification.permission === "denied") {
-        txtNotif.innerText = "Ditolak";
-        btnToggleNotif.className = "px-2.5 py-1 rounded-full bg-rose-950 text-rose-400 text-[11px] font-semibold border border-rose-800/50 flex items-center gap-1.5 transition-colors";
-        iconNotif.className = "fa-solid fa-bell-slash text-xs text-rose-400";
-      } else {
-        txtNotif.innerText = "Aktifkan Notif";
-        btnToggleNotif.className = "px-2.5 py-1 rounded-full bg-indigo-950 hover:bg-indigo-900 text-indigo-300 text-[11px] font-semibold border border-indigo-800/50 flex items-center gap-1.5 transition-colors";
-        iconNotif.className = "fa-regular fa-bell text-xs text-indigo-400";
-      }
-    }
-
-    if (btnToggleNotif) {
-      btnToggleNotif.onclick = () => {
-        if (!("Notification" in window)) {
-          showToast("Browser/Perangkat tidak mendukung notifikasi sistem.");
-          return;
-        }
-
-        if (Notification.permission === "granted") {
-          showToast("Notifikasi HP & Sistem sudah aktif!");
-          triggerSystemNotification("Koorlap Workspace", "Notifikasi aktif! Anda akan menerima alarm setiap pergantian sesi event.");
-        } else if (Notification.permission !== "denied") {
-          Notification.requestPermission().then(permission => {
-            updateNotifButtonUI();
-            if (permission === "granted") {
-              showToast("Izin notifikasi diberikan!");
-              triggerSystemNotification("Koorlap Workspace", "Notifikasi aktif! Alarm pergantian sesi rundown telah siap.");
-            } else {
-              showToast("Izin notifikasi ditolak oleh pengguna.");
-            }
-          });
-        } else {
-          showToast("Izin notifikasi diblokir di setelan browser HP Anda.");
-        }
-      };
-    }
-
-    // TIMER LOGIC WITH AUTOMATIC SESSION TRANSITION NOTIFICATION
-    function startTimer() {
-      clearInterval(timerInterval);
-      timerInterval = setInterval(() => {
-        if (!isPaused && remainingSeconds > 0) {
-          remainingSeconds--;
-          const m = Math.floor(remainingSeconds / 60).toString().padStart(2, '0');
-          const s = (remainingSeconds % 60).toString().padStart(2, '0');
-          liveTimerDisplay.innerText = `${m}:${s}`;
-
-          // TRIGGER ALARM AT 00:00 (AUTOMATIC SESSION TRANSITION)
-          if (remainingSeconds === 0) {
-            const ev = events.find(e => e.id === activeEventId);
-            if (ev) {
-              const activeIdx = ev.rundown.findIndex(r => r.status === 'active');
-              if (activeIdx !== -1 && activeIdx < ev.rundown.length - 1) {
-                const finishedSession = ev.rundown[activeIdx];
-                const nextSession = ev.rundown[activeIdx + 1];
-
-                ev.rundown[activeIdx].status = 'done';
-                ev.rundown[activeIdx + 1].status = 'active';
-                remainingSeconds = 30 * 60; // Default 30 min timer for next session
-
-                saveEvents();
-                renderDigitalRundown();
-                updateLiveSessionUI();
-
-                // Send System Notification & Alarm Sound
-                triggerSystemNotification(
-                  `⏰ PERGANTIAN SESI: ${nextSession.title}`,
-                  `Sesi "${finishedSession.title}" telah selesai!\nSekarang: ${nextSession.title} (PJ: ${nextSession.pic} | ${nextSession.pos})`
-                );
-                showToast(`📢 Pergantian Sesi: ${nextSession.title}`);
-              } else {
-                triggerSystemNotification("🎉 Event Selesai!", "Seluruh sesi kegiatan rundown telah berakhir.");
-                showToast("Seluruh sesi kegiatan telah rampung!");
-              }
-            }
-          }
-        }
-      }, 1000);
-    }
-
-    // NEXT SESSION HANDLER WITH NOTIFICATION
-    if (btnNextSession) {
-      btnNextSession.onclick = () => {
-        const ev = events.find(e => e.id === activeEventId);
-        if (!ev) return;
-
-        const activeIdx = ev.rundown.findIndex(r => r.status === 'active');
-        if (activeIdx !== -1 && activeIdx < ev.rundown.length - 1) {
-          const nextSession = ev.rundown[activeIdx + 1];
-          ev.rundown[activeIdx].status = 'done';
-          ev.rundown[activeIdx + 1].status = 'active';
-          remainingSeconds = 30 * 60;
-          
-          saveEvents();
-          renderDigitalRundown();
-          updateLiveSessionUI();
-
-          // Send System Notification & Sound
-          triggerSystemNotification(
-            `🚀 Lanjut Sesi: ${nextSession.title}`,
-            `Lokasi: ${nextSession.pos} | PJ: ${nextSession.pic}\nJam: ${nextSession.time}`
-          );
-          showToast('Pindah ke sesi berikutnya!');
-        } else {
-          showToast('Sudah di sesi terakhir!');
-        }
-      };
     }
 
     function formatDate(dateStr) {
       if (!dateStr) return '';
       const d = new Date(dateStr);
-      return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+      return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
 
     function showToast(msg) {
-      const toast = toastNotify || document.getElementById('toast-notify');
-      const msgEl = toastMsg || document.getElementById('toast-msg');
-      if (toast && msgEl) {
-        msgEl.innerText = msg;
+      const toast = document.getElementById('toast-notify');
+      const toastMsg = document.getElementById('toast-msg');
+      if (toast && toastMsg) {
+        toastMsg.innerText = msg;
         toast.classList.remove('hidden');
         setTimeout(() => toast.classList.add('hidden'), 2500);
       }
     }
 
-    // INIT APP
-    updateNotifButtonUI();
+    // INITIALIZE APP
     renderHomeScreen();
   </script>
 </body>
